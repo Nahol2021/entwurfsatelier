@@ -3,18 +3,17 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Drei Handschriften</title>
+<title>Papier und Tinte</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Archivo+Narrow:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Archivo:wght@400;500;600;700&display=swap">
 <style>
-/* ===== Seite selbst: bewusst neutral, damit sie die Muster nicht faerbt ===== */
 :root{
-  --grund:#17181B; --karte:#202226; --schrift:#E8E9EB; --leise:#9A9DA4; --strich:#31343A;
+  --grund:#17181B; --schrift:#E8E9EB; --leise:#9A9DA4; --strich:#31343A;
 }
 @media (prefers-color-scheme: light){
   :root:not([data-theme="dark"]){
-    --grund:#EFEFF1; --karte:#FFFFFF; --schrift:#1A1B1E; --leise:#6B6F76; --strich:#D6D8DC;
+    --grund:#ECEDEF; --schrift:#1A1B1E; --leise:#6B6F76; --strich:#D3D5D9;
   }
 }
 *{ box-sizing:border-box; }
@@ -22,195 +21,173 @@ body{
   margin:0; background:var(--grund); color:var(--schrift);
   font-family:'Archivo',system-ui,sans-serif; line-height:1.55;
 }
-.seite{ max-width:1240px; margin:0 auto; padding:2.2rem 1.2rem 5rem; }
-.kopf{ max-width:62ch; margin-bottom:2.4rem; }
-.kopf h1{ font-size:clamp(1.7rem,3.6vw,2.5rem); font-weight:700; letter-spacing:-.025em; margin:0 0 .5rem; }
-.kopf p{ color:var(--leise); margin:0 0 .5rem; font-size:1rem; }
-.kopf .achtung{ color:var(--schrift); }
+.seite{ max-width:1180px; margin:0 auto; padding:2.2rem 1.2rem 5rem; }
+.kopf{ max-width:64ch; margin-bottom:2.2rem; }
+.kopf h1{ font-size:clamp(1.7rem,3.6vw,2.4rem); font-weight:700; letter-spacing:-.025em; margin:0 0 .5rem; }
+.kopf p{ color:var(--leise); margin:0 0 .5rem; }
+.kopf p b{ color:var(--schrift); font-weight:600; }
 
-.muster{ display:grid; gap:2.4rem; }
-@media (min-width:1080px){ .muster{ grid-template-columns:repeat(3,1fr); gap:1.4rem; } }
+.muster{ display:grid; gap:2rem; }
+@media (min-width:860px){ .muster{ grid-template-columns:1fr 1fr; gap:1.6rem 1.4rem; } }
+.stueck{ display:flex; flex-direction:column; gap:.7rem; }
+.titel{ display:flex; align-items:baseline; gap:.55rem; }
+.titel .nr{ font-family:'IBM Plex Mono',monospace; font-size:.78rem; color:var(--leise); }
+.titel h2{ font-size:1.15rem; font-weight:700; letter-spacing:-.02em; margin:0; }
+.warum{ color:var(--leise); font-size:.86rem; margin:0; }
+.warum b{ color:var(--schrift); font-weight:600; }
+.palette{ display:flex; gap:.28rem; align-items:center; }
+.palette i{ width:1.35rem; height:1.35rem; border-radius:2px; display:block; box-shadow:inset 0 0 0 1px rgba(128,128,128,.3); }
+.palette code{ font-family:'IBM Plex Mono',monospace; font-size:.68rem; color:var(--leise); margin-left:.35rem; }
+.buehne{ border:1px solid var(--strich); border-radius:3px; overflow:hidden; }
 
-.stueck{ display:flex; flex-direction:column; gap:.8rem; }
-.stueck > .titel{ display:flex; align-items:baseline; gap:.6rem; flex-wrap:wrap; }
-.stueck > .titel .nr{ font-family:'JetBrains Mono',monospace; font-size:.8rem; color:var(--leise); }
-.stueck > .titel h2{ font-size:1.22rem; font-weight:700; letter-spacing:-.02em; margin:0; }
-.stueck > .warum{ color:var(--leise); font-size:.88rem; margin:0; }
-.palette{ display:flex; gap:.3rem; align-items:center; margin:.1rem 0 .2rem; }
-.palette i{ width:1.5rem; height:1.5rem; border-radius:3px; display:block; box-shadow:inset 0 0 0 1px rgba(128,128,128,.28); }
-.palette span{ font-family:'JetBrains Mono',monospace; font-size:.68rem; color:var(--leise); margin-left:.3rem; }
-.stueck > .fakten{ font-size:.8rem; color:var(--leise); margin:0; }
-.stueck > .fakten b{ color:var(--schrift); font-weight:600; }
-
-/* Rahmen, in dem jedes Muster lebt */
-.buehne{ border:1px solid var(--strich); border-radius:4px; overflow:hidden; }
-
-/* ===== Gemeinsamer Aufbau jedes Musters. Nur Struktur, keine Farbe. ===== */
-.p{ display:flex; flex-direction:column; font-size:14px; }
-.p-kopf{ display:flex; align-items:center; gap:.6rem; flex-wrap:wrap; padding:.6rem .8rem; }
-.p-marke{ font-weight:700; }
-.p-schalter{ display:inline-flex; margin-left:auto; }
-.p-schalter button{ font:inherit; cursor:pointer; padding:.3rem .7rem; font-size:.78rem; }
-.p-koerper{ display:grid; grid-template-columns:1fr; }
-@media (min-width:520px){ .p-koerper{ grid-template-columns:minmax(0,1fr) minmax(0,1fr); } }
-@media (min-width:1080px){ .p-koerper{ grid-template-columns:1fr; } }
-.p-panel{ padding:.7rem .8rem 1rem; }
-.p-label{ display:flex; align-items:baseline; gap:.5rem; font-size:.78rem; margin:.85rem 0 .35rem; }
-.p-label:first-child{ margin-top:0; }
-.p-label em{ margin-left:auto; font-style:normal; font-size:.68rem; }
-.p-chips{ display:flex; flex-wrap:wrap; gap:.3rem; }
-.p-chips button{ font:inherit; font-size:.79rem; cursor:pointer; padding:.26rem .6rem; }
-.p-feld{ margin-top:.75rem; }
-.p-feld label{ display:flex; justify-content:space-between; align-items:baseline; font-size:.78rem; margin-bottom:.3rem; }
-.p-bahn{ position:relative; height:3px; }
-.p-bahn i{ position:absolute; top:50%; width:11px; height:11px; margin:-5.5px 0 0 -5.5px; display:block; }
-.p-bild{ display:flex; align-items:center; justify-content:center; padding:1rem .8rem; min-height:230px; }
-.p-bild svg{ width:100%; max-width:190px; height:auto; display:block; }
-.p-fuss{ display:flex; align-items:center; gap:.5rem; flex-wrap:wrap; padding:.5rem .8rem; font-size:.74rem; }
-.p-fuss .p-schalter button{ padding:.22rem .55rem; font-size:.72rem; }
+/* ===== Aufbau: identisch in allen vier Fassungen ===== */
+.p{ display:flex; flex-direction:column; font-size:14px; font-family:'IBM Plex Sans',system-ui,sans-serif; }
+.p-kopf{ display:flex; align-items:center; gap:.6rem; flex-wrap:wrap; padding:.95rem 1.05rem .65rem; }
+.p-marke{ font-size:.95rem; font-weight:600; letter-spacing:-.01em; }
+.p-schalter{ display:inline-flex; margin-left:auto; gap:.85rem; }
+.p-schalter button{
+  font:inherit; font-size:.78rem; cursor:pointer;
+  background:none; border:0; padding:.15rem 0; border-bottom:2px solid transparent;
+}
+.p-koerper{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); }
+@media (max-width:520px){ .p-koerper{ grid-template-columns:1fr; } }
+.p-panel{ padding:.35rem 1.05rem 1.25rem; }
+.p-label{ display:flex; align-items:baseline; gap:.5rem; font-size:.8rem; font-weight:600; margin:1.1rem 0 .35rem; }
+.p-label:first-child{ margin-top:.5rem; }
+.p-label em{
+  margin-left:auto; font-style:normal; font-weight:400;
+  font-family:'IBM Plex Mono',monospace; font-size:.65rem;
+}
+.p-chips{ display:flex; flex-wrap:wrap; gap:.05rem .9rem; }
+.p-chips button{
+  font:inherit; font-size:.8rem; cursor:pointer;
+  background:none; border:0; padding:.12rem 0; border-bottom:2px solid transparent;
+}
+.p-feld{ margin-top:1.05rem; }
+.p-feld label{ display:flex; justify-content:space-between; align-items:baseline; font-size:.79rem; margin-bottom:.35rem; }
+.p-feld label span{ font-family:'IBM Plex Mono',monospace; }
+.p-bahn{ position:relative; height:1px; }
+.p-bahn i{ position:absolute; top:50%; width:11px; height:11px; margin:-5.5px 0 0 -5.5px; display:block; border-radius:50%; }
+.p-bild{ display:flex; align-items:center; justify-content:center; padding:1.1rem .8rem; min-height:220px; position:relative; }
+.p-bild svg{ width:100%; max-width:175px; height:auto; display:block; }
+.p-bild svg path{ fill:none; stroke-width:1.2; }
+.p-fuss{ display:flex; align-items:center; gap:.5rem; flex-wrap:wrap; padding:.7rem 1.05rem; font-size:.75rem; }
+.p-fuss .p-schalter{ margin-left:auto; gap:.8rem; }
+.p-fuss .p-schalter button{ font-size:.75rem; }
 
 /* ===================================================================
-   1 — WERKSTATT
-   Messgeraet statt Website. Haarlinien, rechte Winkel, Zahlen in
-   Monospace, ein einziges Signalorange. Dicht gepackt.
+   A — PAUSPAPIER
+   Kuehles Papier statt Cremeweiss. Zwei Tinten mit Bedeutung:
+   Karminrot = gilt nur fuer diese Ansicht, Blau = gilt fuer beide.
+   Die Farbe sagt etwas, statt zu schmuecken.
    =================================================================== */
-.p-werkstatt{
-  --g:#171A1E; --p:#1E2228; --l:#2F353D; --l2:#414952;
-  --t:#D9DEE5; --m:#7B848F; --s:#FF6B2C;
-  background:var(--g); color:var(--t);
-  font-family:'Archivo',system-ui,sans-serif;
-}
-.p-werkstatt .p-kopf{ background:var(--p); border-bottom:1px solid var(--l2); }
-.p-werkstatt .p-marke{ font-size:.82rem; letter-spacing:.01em; }
-.p-werkstatt .p-schalter{ border:1px solid var(--l2); }
-.p-werkstatt .p-schalter button{ background:transparent; color:var(--m); border:0; border-right:1px solid var(--l2); }
-.p-werkstatt .p-schalter button:last-child{ border-right:0; }
-.p-werkstatt .p-schalter button.an{ background:var(--s); color:#160B04; font-weight:600; }
-.p-werkstatt .p-panel{ border-right:1px solid var(--l); }
-.p-werkstatt .p-label{ color:var(--m); border-bottom:1px solid var(--l); padding-bottom:.25rem; }
-.p-werkstatt .p-label em{ color:#5D656E; font-family:'JetBrains Mono',monospace; font-size:.64rem; }
-.p-werkstatt .p-chips button{
-  background:#252A31; color:var(--t); border:1px solid var(--l2); border-radius:0;
-}
-.p-werkstatt .p-chips button.an{ background:var(--s); border-color:var(--s); color:#160B04; font-weight:600; }
-.p-werkstatt .p-feld label{ color:var(--m); }
-.p-werkstatt .p-feld label span{ font-family:'JetBrains Mono',monospace; color:var(--s); font-size:.82rem; }
-.p-werkstatt .p-bahn{ background:#12151A; border:1px solid var(--l); height:5px; }
-.p-werkstatt .p-bahn i{ background:var(--s); border-radius:0; width:9px; height:13px; margin-top:-6.5px; }
-.p-werkstatt .p-bild{
-  background:
-    linear-gradient(var(--l) 1px, transparent 1px) 0 0/100% 14px,
-    linear-gradient(90deg, var(--l) 1px, transparent 1px) 0 0/14px 100%,
-    var(--g);
-}
-.p-werkstatt .p-bild svg path{ fill:#22272E; stroke:var(--t); stroke-width:1.4; }
-.p-werkstatt .p-fuss{ background:var(--p); border-top:1px solid var(--l2); color:var(--m); }
-.p-werkstatt .p-fuss > span{ font-family:'JetBrains Mono',monospace; font-size:.7rem; }
-.p-werkstatt .p-fuss .p-schalter{ margin-left:auto; }
-
-/* ===================================================================
-   2 — SCHNITTBOGEN
-   Weisses Papier, Graphit, Rotstift. Keine Kaesten, keine Pillen —
-   Auswahl wird unterstrichen wie auf einem Bogen. Viel Luft.
-   =================================================================== */
-.p-bogen{
-  --p:#FBFBF8; --t:#22252A; --m:#8A8E93; --l:#E2E2DC; --r:#C0392B;
+.p-pauspapier{
+  --p:#F4F6F7; --w:#FCFDFD; --t:#1C2126; --m:#727D85; --l:#DDE2E4;
+  --a:#A8123C; --b:#1B5A9E;
   background:var(--p); color:var(--t);
-  font-family:'IBM Plex Sans',system-ui,sans-serif;
 }
-.p-bogen .p-kopf{ padding:1rem 1.1rem .7rem; }
-.p-bogen .p-marke{ font-size:.95rem; font-weight:600; letter-spacing:-.01em; }
-.p-bogen .p-schalter{ gap:.9rem; }
-.p-bogen .p-schalter button{
-  background:none; border:0; padding:.15rem 0; color:var(--m);
-  border-bottom:2px solid transparent;
-}
-.p-bogen .p-schalter button.an{ color:var(--r); border-bottom-color:var(--r); font-weight:600; }
-.p-bogen .p-panel{ padding:.4rem 1.1rem 1.3rem; }
-.p-bogen .p-label{ color:var(--t); font-weight:600; font-size:.8rem; margin-top:1.15rem; }
-.p-bogen .p-label em{ color:var(--m); font-weight:400; font-family:'IBM Plex Mono',monospace; font-size:.66rem; }
-.p-bogen .p-chips{ gap:.05rem .95rem; }
-.p-bogen .p-chips button{
-  background:none; border:0; padding:.12rem 0; color:var(--t);
-  border-bottom:2px solid transparent;
-}
-.p-bogen .p-chips button:hover{ border-bottom-color:var(--l); }
-.p-bogen .p-chips button.an{ border-bottom-color:var(--r); font-weight:600; }
-.p-bogen .p-feld{ margin-top:1.1rem; }
-.p-bogen .p-feld label{ color:var(--t); }
-.p-bogen .p-feld label span{ font-family:'IBM Plex Mono',monospace; color:var(--m); }
-.p-bogen .p-bahn{ background:var(--l); height:1px; }
-.p-bogen .p-bahn i{ background:var(--p); border:2px solid var(--r); border-radius:50%; }
-.p-bogen .p-bild{ background:#FFFFFF; border-left:1px solid var(--l); position:relative; }
-.p-bogen .p-bild::before{
-  content:''; position:absolute; top:12%; bottom:12%; left:50%;
-  border-left:1px dashed var(--r); opacity:.4;
-}
-.p-bogen .p-bild svg path{ fill:none; stroke:var(--t); stroke-width:1.2; }
-.p-bogen .p-fuss{ border-top:1px solid var(--l); color:var(--m); padding:.7rem 1.1rem; }
-.p-bogen .p-fuss .p-schalter{ margin-left:auto; gap:.8rem; }
+.p-pauspapier .p-schalter button{ color:var(--m); }
+.p-pauspapier .p-schalter button.an{ color:var(--a); border-bottom-color:var(--a); font-weight:600; }
+.p-pauspapier .p-label em.eigen{ color:var(--a); }
+.p-pauspapier .p-label em.geteilt{ color:var(--b); }
+.p-pauspapier .p-chips button{ color:var(--t); }
+.p-pauspapier .p-chips button.an{ border-bottom-color:var(--a); font-weight:600; }
+.p-pauspapier .p-feld label span{ color:var(--m); }
+.p-pauspapier .p-bahn{ background:var(--l); }
+.p-pauspapier .p-bahn i{ background:var(--w); border:2px solid var(--b); }
+.p-pauspapier .p-bild{ background:var(--w); border-left:1px solid var(--l); }
+.p-pauspapier .p-bild::before{ content:''; position:absolute; top:12%; bottom:12%; left:50%; border-left:1px dashed var(--b); opacity:.55; }
+.p-pauspapier .p-bild svg path{ stroke:var(--t); }
+.p-pauspapier .p-fuss{ border-top:1px solid var(--l); color:var(--m); }
+.p-pauspapier .p-fuss .p-schalter button.an{ color:var(--a); border-bottom-color:var(--a); font-weight:600; }
 
 /* ===================================================================
-   3 — DENIM
-   Jeansgrau wie dein Schreibtisch, dazu das Orange des Steppgarns als
-   einzige Farbe. Trennlinien sind gestrichelt wie eine Steppnaht.
+   B — GRAPHIT
+   Gar keine Akzentfarbe. Ausgewaehltes ist schlicht schwarz und
+   unterstrichen, alles andere grau. Nichts, was nach Vorlage aussehen
+   koennte - es gibt keinen Farbton, den man wiedererkennen wuerde.
    =================================================================== */
-.p-denim{
-  --g:#2A2F37; --p:#222730; --l:#39404B; --t:#E7EAEE; --m:#98A1AD; --s:#E0A03C;
-  background:var(--g); color:var(--t);
-  font-family:'Archivo',system-ui,sans-serif;
+.p-graphit{
+  --p:#F2F2F0; --w:#FAFAF9; --t:#121417; --m:#83868A; --l:#DBDBD7;
+  background:var(--p); color:var(--t);
 }
-.p-denim .p-kopf{ background:var(--p); border-bottom:1px dashed var(--s); }
-.p-denim .p-marke{
-  font-family:'Archivo Narrow',sans-serif; font-weight:700;
-  font-size:.92rem; letter-spacing:.03em; text-transform:uppercase;
+.p-graphit .p-schalter button{ color:var(--m); }
+.p-graphit .p-schalter button.an{ color:var(--t); border-bottom-color:var(--t); font-weight:600; }
+.p-graphit .p-label em{ color:var(--m); }
+.p-graphit .p-chips button{ color:var(--m); }
+.p-graphit .p-chips button.an{ color:var(--t); border-bottom-color:var(--t); font-weight:600; }
+.p-graphit .p-feld label span{ color:var(--t); }
+.p-graphit .p-bahn{ background:var(--l); }
+.p-graphit .p-bahn i{ background:var(--t); }
+.p-graphit .p-bild{ background:var(--w); border-left:1px solid var(--l); }
+.p-graphit .p-bild::before{ content:''; position:absolute; top:12%; bottom:12%; left:50%; border-left:1px dashed var(--m); opacity:.45; }
+.p-graphit .p-bild svg path{ stroke:var(--t); }
+.p-graphit .p-fuss{ border-top:1px solid var(--l); color:var(--m); }
+.p-graphit .p-fuss .p-schalter button.an{ color:var(--t); border-bottom-color:var(--t); font-weight:600; }
+
+/* ===================================================================
+   C — BLAUPAUSE
+   Eine einzige Tinte, und zwar die des technischen Zeichnens:
+   Konstruktionsblau. Papier leicht kuehl, Linien fast schwarz.
+   =================================================================== */
+.p-blaupause{
+  --p:#F1F4F7; --w:#FAFCFD; --t:#171C22; --m:#6E7883; --l:#D8DEE5;
+  --a:#17518F;
+  background:var(--p); color:var(--t);
 }
-.p-denim .p-schalter{ gap:.3rem; }
-.p-denim .p-schalter button{
-  background:transparent; color:var(--m); border:1px solid var(--l); border-radius:2px;
-  font-family:'Archivo Narrow',sans-serif; font-weight:600;
+.p-blaupause .p-schalter button{ color:var(--m); }
+.p-blaupause .p-schalter button.an{ color:var(--a); border-bottom-color:var(--a); font-weight:600; }
+.p-blaupause .p-label em{ color:var(--m); }
+.p-blaupause .p-chips button{ color:var(--t); }
+.p-blaupause .p-chips button.an{ color:var(--a); border-bottom-color:var(--a); font-weight:600; }
+.p-blaupause .p-feld label span{ color:var(--a); }
+.p-blaupause .p-bahn{ background:var(--l); }
+.p-blaupause .p-bahn i{ background:var(--w); border:2px solid var(--a); }
+.p-blaupause .p-bild{ background:var(--w); border-left:1px solid var(--l); }
+.p-blaupause .p-bild::before{ content:''; position:absolute; top:12%; bottom:12%; left:50%; border-left:1px dashed var(--a); opacity:.5; }
+.p-blaupause .p-bild svg path{ stroke:var(--t); }
+.p-blaupause .p-fuss{ border-top:1px solid var(--l); color:var(--m); }
+.p-blaupause .p-fuss .p-schalter button.an{ color:var(--a); border-bottom-color:var(--a); font-weight:600; }
+
+/* ===================================================================
+   D — SCHNEIDERKREIDE
+   Das Pink der Schneiderkreide. Kommt aus deinem Handwerk und ist
+   ein Ton, den sonst niemand verbaut - genau deshalb faellt er auf.
+   =================================================================== */
+.p-kreide{
+  --p:#F5F3F4; --w:#FDFCFC; --t:#1B1619; --m:#837A7E; --l:#E0DADD;
+  --a:#C9226B;
+  background:var(--p); color:var(--t);
 }
-.p-denim .p-schalter button.an{
-  background:#1B2028; color:var(--s); border:1px dashed var(--s); font-weight:700;
-}
-.p-denim .p-panel{ border-right:1px solid var(--l); }
-.p-denim .p-label{
-  font-family:'Archivo Narrow',sans-serif; font-weight:600; color:var(--t);
-  text-transform:uppercase; letter-spacing:.04em; font-size:.74rem;
-  border-bottom:1px dashed var(--l); padding-bottom:.28rem;
-}
-.p-denim .p-label em{ color:var(--m); text-transform:none; letter-spacing:0; font-weight:400; }
-.p-denim .p-chips button{
-  background:#1D222A; color:var(--t); border:1px solid var(--l); border-radius:2px;
-}
-.p-denim .p-chips button.an{
-  background:#1B2028; color:var(--s); border:1px dashed var(--s); font-weight:600;
-}
-.p-denim .p-feld label{ color:var(--m); }
-.p-denim .p-feld label span{ font-family:'JetBrains Mono',monospace; color:var(--s); }
-.p-denim .p-bahn{ background:#1B2028; border-radius:2px; height:4px; }
-.p-denim .p-bahn i{ background:var(--s); border-radius:2px; }
-.p-denim .p-bild{ background:var(--g); }
-.p-denim .p-bild svg path{ fill:#323844; stroke:#F2F4F7; stroke-width:1.4; }
-.p-denim .p-fuss{ background:var(--p); border-top:1px dashed var(--s); color:var(--m); }
-.p-denim .p-fuss .p-schalter{ margin-left:auto; }
+.p-kreide .p-schalter button{ color:var(--m); }
+.p-kreide .p-schalter button.an{ color:var(--a); border-bottom-color:var(--a); font-weight:600; }
+.p-kreide .p-label em{ color:var(--m); }
+.p-kreide .p-chips button{ color:var(--t); }
+.p-kreide .p-chips button.an{ color:var(--a); border-bottom-color:var(--a); font-weight:600; }
+.p-kreide .p-feld label span{ color:var(--a); }
+.p-kreide .p-bahn{ background:var(--l); }
+.p-kreide .p-bahn i{ background:var(--w); border:2px solid var(--a); }
+.p-kreide .p-bild{ background:var(--w); border-left:1px solid var(--l); }
+.p-kreide .p-bild::before{ content:''; position:absolute; top:12%; bottom:12%; left:50%; border-left:1px dashed var(--a); opacity:.5; }
+.p-kreide .p-bild svg path{ stroke:var(--t); }
+.p-kreide .p-fuss{ border-top:1px solid var(--l); color:var(--m); }
+.p-kreide .p-fuss .p-schalter button.an{ color:var(--a); border-bottom-color:var(--a); font-weight:600; }
 </style>
 </head>
 <body>
 <div class="seite">
   <header class="kopf">
-    <h1>Drei Handschriften</h1>
-    <p>Dreimal derselbe Ausschnitt aus dem Atelier — gleiche Knöpfe, gleiche Regler, gleiches Shirt. Was sich unterscheidet, ist ausschließlich die Handschrift.</p>
-    <p class="achtung">Alle drei lassen bewusst weg, was die bisherige Fassung nach Maschine aussehen ließ: den lila Akzent, die abgerundeten Karten, die gesperrten Großbuchstaben und die Pillenform.</p>
+    <h1>Papier und Tinte</h1>
+    <p>Der Aufbau von Nummer 2 bleibt unverändert — viermal genau dieselben Knöpfe, Regler und Unterstriche. Nur Papierton und Tinte wechseln.</p>
+    <p><b>Was ich rausgeworfen habe:</b> das cremeweiße Papier mit Warmstich und das Rot <code>#C0392B</code>. Beides sind Töne, die in fast jedem Baukasten stecken — das war der Grund, warum es trotz des neuen Aufbaus noch nach Maschine aussah. Das Papier ist jetzt kühl statt warm, und die Grautöne sind leicht in Richtung der jeweiligen Tinte verschoben statt neutral.</p>
   </header>
   <div class="muster">
     <section class="stueck">
-      <div class="titel"><span class="nr">01</span><h2>Werkstatt</h2></div>
-      <p class="warum">Kein Website-Look, sondern Messgerät. Haarlinien statt Rahmen, rechte Winkel, Zahlen in Monospace, ein einziges Signalorange. Die Zeichenfläche liegt auf einem Raster wie auf einer Schneidematte.</p>
-      <div class="palette"><i style="background:#171A1E" title="#171A1E"></i><i style="background:#1E2228" title="#1E2228"></i><i style="background:#414952" title="#414952"></i><i style="background:#D9DEE5" title="#D9DEE5"></i><i style="background:#FF6B2C" title="#FF6B2C"></i><span>#FF6B2C</span></div>
-      <p class="fakten"><b>Schrift:</b> Archivo + JetBrains Mono</p>
+      <div class="titel"><span class="nr">A</span><h2>Pauspapier</h2></div>
+      <p class="warum">Kühles Papier statt Cremeweiß. <b>Zwei Tinten, die etwas bedeuten:</b> Karminrot heißt „gilt nur für diese Ansicht", Blau heißt „gilt für beide". Die Farbe schmückt nicht, sie erklärt die Kopplung.</p>
+      <div class="palette"><i style="background:#F4F6F7" title="#F4F6F7"></i><i style="background:#DDE2E4" title="#DDE2E4"></i><i style="background:#1C2126" title="#1C2126"></i><i style="background:#1B5A9E" title="#1B5A9E"></i><i style="background:#A8123C" title="#A8123C"></i><code>#A8123C</code></div>
       <div class="buehne">
-        <div class="p p-werkstatt">
+        <div class="p p-pauspapier">
           <div class="p-kopf">
             <span class="p-marke">Entwurfsatelier</span>
             <div class="p-schalter">
@@ -220,14 +197,14 @@ body{
           </div>
           <div class="p-koerper">
             <div class="p-panel">
-              <div class="p-label">Halsausschnitt <em>nur vorne</em></div>
+              <div class="p-label">Halsausschnitt <em class="eigen">nur vorne</em></div>
               <div class="p-chips">
                 <button class="an" type="button">Rund</button>
                 <button type="button">V</button>
                 <button type="button">U-Boot</button>
                 <button type="button">Eckig</button>
               </div>
-              <div class="p-label">Ärmel <em>beide Ansichten</em></div>
+              <div class="p-label">Ärmel <em class="geteilt">beide Ansichten</em></div>
               <div class="p-chips">
                 <button class="an" type="button">Kurzarm</button>
                 <button type="button">Langarm</button>
@@ -258,15 +235,13 @@ body{
           </div>
         </div>
       </div>
-      <p class="fakten">Das ist die Umgebung, in der du ohnehin arbeitest — Seamly2D und OpenSCAD sehen so aus. Dicht gepackt, viel auf einen Blick.</p>
     </section>
     <section class="stueck">
-      <div class="titel"><span class="nr">02</span><h2>Schnittbogen</h2></div>
-      <p class="warum">Weißes Papier, Graphit, Rotstift. Keine Kästen und keine Pillen: Ausgewähltes wird unterstrichen, so wie man es auf einem Bogen anstreichen würde. Eine rot gestrichelte Mittellinie, sonst nichts.</p>
-      <div class="palette"><i style="background:#FBFBF8" title="#FBFBF8"></i><i style="background:#FFFFFF" title="#FFFFFF"></i><i style="background:#E2E2DC" title="#E2E2DC"></i><i style="background:#22252A" title="#22252A"></i><i style="background:#C0392B" title="#C0392B"></i><span>#C0392B</span></div>
-      <p class="fakten"><b>Schrift:</b> IBM Plex Sans + IBM Plex Mono</p>
+      <div class="titel"><span class="nr">B</span><h2>Graphit</h2></div>
+      <p class="warum">Gar keine Akzentfarbe. Ausgewähltes ist schlicht schwarz und unterstrichen, alles andere grau. <b>Es gibt keinen Farbton, den man wiedererkennen könnte</b> — damit auch keinen, der nach Vorlage aussieht.</p>
+      <div class="palette"><i style="background:#F2F2F0" title="#F2F2F0"></i><i style="background:#DBDBD7" title="#DBDBD7"></i><i style="background:#83868A" title="#83868A"></i><i style="background:#121417" title="#121417"></i><i style="background:#121417" title="#121417"></i><code>#121417</code></div>
       <div class="buehne">
-        <div class="p p-bogen">
+        <div class="p p-graphit">
           <div class="p-kopf">
             <span class="p-marke">Entwurfsatelier</span>
             <div class="p-schalter">
@@ -276,14 +251,14 @@ body{
           </div>
           <div class="p-koerper">
             <div class="p-panel">
-              <div class="p-label">Halsausschnitt <em>nur vorne</em></div>
+              <div class="p-label">Halsausschnitt <em class="eigen">nur vorne</em></div>
               <div class="p-chips">
                 <button class="an" type="button">Rund</button>
                 <button type="button">V</button>
                 <button type="button">U-Boot</button>
                 <button type="button">Eckig</button>
               </div>
-              <div class="p-label">Ärmel <em>beide Ansichten</em></div>
+              <div class="p-label">Ärmel <em class="geteilt">beide Ansichten</em></div>
               <div class="p-chips">
                 <button class="an" type="button">Kurzarm</button>
                 <button type="button">Langarm</button>
@@ -314,15 +289,13 @@ body{
           </div>
         </div>
       </div>
-      <p class="fakten">So sieht deine Linearity-Bibliothek wirklich aus — weiße Fläche, dünne schwarze Linien, Beschriftung daneben. Die Zeichnung bekommt allen Platz.</p>
     </section>
     <section class="stueck">
-      <div class="titel"><span class="nr">03</span><h2>Denim</h2></div>
-      <p class="warum">Jeansgrau als Grundton, dazu das Orange des Steppgarns als einzige Farbe. Trennlinien und aktive Felder sind gestrichelt — wie eine Steppnaht. Beschriftungen schmal und versal wie auf Arbeitskleidung.</p>
-      <div class="palette"><i style="background:#2A2F37" title="#2A2F37"></i><i style="background:#222730" title="#222730"></i><i style="background:#39404B" title="#39404B"></i><i style="background:#E7EAEE" title="#E7EAEE"></i><i style="background:#E0A03C" title="#E0A03C"></i><span>#E0A03C</span></div>
-      <p class="fakten"><b>Schrift:</b> Archivo + Archivo Narrow</p>
+      <div class="titel"><span class="nr">C</span><h2>Blaupause</h2></div>
+      <p class="warum">Eine einzige Tinte, und zwar die des technischen Zeichnens: Konstruktionsblau. Papier leicht kühl, Umriss fast schwarz, die Mittellinie blau gestrichelt.</p>
+      <div class="palette"><i style="background:#F1F4F7" title="#F1F4F7"></i><i style="background:#D8DEE5" title="#D8DEE5"></i><i style="background:#6E7883" title="#6E7883"></i><i style="background:#171C22" title="#171C22"></i><i style="background:#17518F" title="#17518F"></i><code>#17518F</code></div>
       <div class="buehne">
-        <div class="p p-denim">
+        <div class="p p-blaupause">
           <div class="p-kopf">
             <span class="p-marke">Entwurfsatelier</span>
             <div class="p-schalter">
@@ -332,14 +305,14 @@ body{
           </div>
           <div class="p-koerper">
             <div class="p-panel">
-              <div class="p-label">Halsausschnitt <em>nur vorne</em></div>
+              <div class="p-label">Halsausschnitt <em class="eigen">nur vorne</em></div>
               <div class="p-chips">
                 <button class="an" type="button">Rund</button>
                 <button type="button">V</button>
                 <button type="button">U-Boot</button>
                 <button type="button">Eckig</button>
               </div>
-              <div class="p-label">Ärmel <em>beide Ansichten</em></div>
+              <div class="p-label">Ärmel <em class="geteilt">beide Ansichten</em></div>
               <div class="p-chips">
                 <button class="an" type="button">Kurzarm</button>
                 <button type="button">Langarm</button>
@@ -370,7 +343,60 @@ body{
           </div>
         </div>
       </div>
-      <p class="fakten">Zwei Gründe: Jeansgrau ist die Farbe, die du dir selbst auf den Schreibtisch gelegt hast. Und Orange auf Indigo ist das bekannteste Farbpaar der Bekleidungsherstellung überhaupt.</p>
+    </section>
+    <section class="stueck">
+      <div class="titel"><span class="nr">D</span><h2>Schneiderkreide</h2></div>
+      <p class="warum">Das Pink der Schneiderkreide. Kommt aus deinem Handwerk und ist ein Ton, den sonst kaum jemand verbaut — <b>genau deshalb fällt er auf.</b></p>
+      <div class="palette"><i style="background:#F5F3F4" title="#F5F3F4"></i><i style="background:#E0DADD" title="#E0DADD"></i><i style="background:#837A7E" title="#837A7E"></i><i style="background:#1B1619" title="#1B1619"></i><i style="background:#C9226B" title="#C9226B"></i><code>#C9226B</code></div>
+      <div class="buehne">
+        <div class="p p-kreide">
+          <div class="p-kopf">
+            <span class="p-marke">Entwurfsatelier</span>
+            <div class="p-schalter">
+              <button class="an" type="button">Symmetrisch</button>
+              <button type="button">Asymmetrisch</button>
+            </div>
+          </div>
+          <div class="p-koerper">
+            <div class="p-panel">
+              <div class="p-label">Halsausschnitt <em class="eigen">nur vorne</em></div>
+              <div class="p-chips">
+                <button class="an" type="button">Rund</button>
+                <button type="button">V</button>
+                <button type="button">U-Boot</button>
+                <button type="button">Eckig</button>
+              </div>
+              <div class="p-label">Ärmel <em class="geteilt">beide Ansichten</em></div>
+              <div class="p-chips">
+                <button class="an" type="button">Kurzarm</button>
+                <button type="button">Langarm</button>
+                <button type="button">Raglan</button>
+              </div>
+              <div class="p-feld">
+                <label>Weite <span>26.0</span></label>
+                <div class="p-bahn"><i style="left:38%"></i></div>
+              </div>
+              <div class="p-feld">
+                <label>Länge <span>70.0</span></label>
+                <div class="p-bahn"><i style="left:63%"></i></div>
+              </div>
+            </div>
+            <div class="p-bild">
+              <svg viewBox="-47 -6 94 82" xmlns="http://www.w3.org/2000/svg" aria-label="T-Shirt, Vorderansicht">
+                <path d="M 0.00,7.20 C 5.29,7.20 9.17,3.24 9.88,0.69 C 10.02,0.19 10.17,0.05 10.68,0.18 C 14.46,1.20 18.25,2.22 22.03,3.24 C 23.10,3.53 22.90,3.47 23.97,3.75 C 30.19,5.40 36.08,7.84 41.42,10.78 C 42.29,11.26 42.39,11.56 42.02,12.48 C 40.07,17.30 38.13,22.12 36.18,26.94 C 35.83,27.81 35.49,27.93 34.62,27.60 C 32.31,26.74 29.95,26.37 27.60,26.41 C 26.31,26.43 26.00,26.82 26.00,28.10 C 26.00,41.93 26.00,55.77 26.00,69.60 C 26.00,69.91 25.91,70.00 25.60,70.00 C 17.07,70.00 8.53,70.00 0.00,70.00 C -8.53,70.00 -17.07,70.00 -25.60,70.00 C -25.91,70.00 -26.00,69.91 -26.00,69.60 C -26.00,55.77 -26.00,41.93 -26.00,28.10 C -26.00,26.82 -26.31,26.43 -27.60,26.41 C -29.95,26.37 -32.31,26.74 -34.62,27.60 C -35.49,27.93 -35.83,27.81 -36.18,26.94 C -38.13,22.12 -40.07,17.30 -42.02,12.48 C -42.39,11.56 -42.29,11.26 -41.42,10.78 C -36.08,7.84 -30.19,5.40 -23.97,3.75 C -22.90,3.47 -23.10,3.53 -22.03,3.24 C -18.25,2.22 -14.46,1.20 -10.68,0.18 C -10.17,0.05 -10.02,0.19 -9.88,0.69 C -9.17,3.24 -5.29,7.20 0.00,7.20 Z" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
+              </svg>
+            </div>
+          </div>
+          <div class="p-fuss">
+            <span>Bearbeitet: Vorderansicht</span>
+            <div class="p-schalter">
+              <button class="an" type="button">Bausteine</button>
+              <button type="button">Form</button>
+              <button type="button">Punkte</button>
+            </div>
+          </div>
+        </div>
+      </div>
     </section>
   </div>
 </div>
