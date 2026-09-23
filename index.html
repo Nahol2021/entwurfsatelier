@@ -477,11 +477,14 @@ const el = (tag,attrs) => {
    ===================================================================== */
 
 // Werte sind Entwurfsgroessen, keine Koerpermasse. Es geht ums Aussehen.
+// Diese Werte sind aus Johans eigenen Zeichnungen gemessen, nicht geraten.
+// Quelle: design-library/linearity/blatt_shirts.jpeg und blatt_pants.jpeg,
+// beide A4 quer mit Lineal, umgerechnet ueber das Seitenverhaeltnis.
 const FORM_STANDARD = {
-  weite:26, laenge:70, schulter:23, schulterfall:3.5,
-  halsweite:10, halstiefe:7.2,
-  armwinkel:22, armlaenge:21, armweite:18, armloch:23,
-  bundweite:19, beinlaenge:99, beinweite:12, schritt:30
+  weite:21.6, laenge:70, schulter:16, schulterfall:1.5,
+  halsweite:9.8, halstiefe:5,
+  armwinkel:38, armlaenge:26, armweite:13.5, armloch:24.6,
+  bundweite:16.3, beinlaenge:99, beinweite:13.6, schritt:30
 };
 
 function armPunkte(f, ab){
@@ -527,8 +530,8 @@ const TEILE = {
   }},
   aermel:{ bez:'Ärmel', opt:{
     kurz:{bez:'Kurzarm', bau:(f)=>{ const s=armPunkte(f,[f.schulter,f.schulterfall]); return [
-      {p:[f.halsweite,0], r:0.7, kante:{art:'gerade', bez:'Schulternaht'}},
-      {p:[f.schulter,f.schulterfall], r:1.0, kante:{art:'bogen', w:1.0, bez:'Ärmelkappe'}},
+      {p:[f.halsweite,0], r:1.2, kante:{art:'gerade', bez:'Schulternaht'}},
+      {p:[f.schulter,f.schulterfall], r:1.4, kante:{art:'bogen', w:1.0, bez:'Ärmelkappe'}},
       {p:s.aus, r:1.2, kante:{art:'gerade', bez:'Ärmelsaum'}},
       {p:s.ein, r:1.2, kante:{art:'bogen', w:-0.9, bez:'Achselnaht'}}]; }},
     halb:{bez:'Halbarm', vor:f=>{f.armlaenge=33; f.armweite=16;},
@@ -537,35 +540,45 @@ const TEILE = {
       bau:(f)=>TEILE.aermel.opt.kurz.bau(f)},
     weit:{bez:'Weit', vor:f=>{f.armweite=29; f.armlaenge=26;},
       bau:(f)=>{ const s=armPunkte(f,[f.schulter,f.schulterfall]); return [
-        {p:[f.halsweite,0], r:0.7, kante:{art:'gerade', bez:'Schulternaht'}},
-        {p:[f.schulter,f.schulterfall], r:1.0, kante:{art:'bogen', w:3.0, bez:'Ärmelkappe'}},
+        {p:[f.halsweite,0], r:1.2, kante:{art:'gerade', bez:'Schulternaht'}},
+        {p:[f.schulter,f.schulterfall], r:1.4, kante:{art:'bogen', w:3.0, bez:'Ärmelkappe'}},
         {p:s.aus, r:1.6, kante:{art:'gerade', bez:'Ärmelsaum'}},
         {p:s.ein, r:1.6, kante:{art:'bogen', w:-0.6, bez:'Achselnaht'}}]; }},
     traeger:{bez:'Träger', vor:f=>{f.halsweite*=0.62;}, bau:(f)=>[
       {p:[f.halsweite,0], r:0.8, kante:{art:'gerade', bez:'Trägerbreite'}},
       {p:[f.halsweite*1.7,0.6], r:1.0, kante:{art:'bogen', w:-4.5, bez:'Armausschnitt'}}]},
     ohne:{bez:'Ärmellos', bau:(f)=>[
-      {p:[f.halsweite,0], r:0.7, kante:{art:'gerade', bez:'Schulternaht'}},
-      {p:[f.schulter,f.schulterfall], r:1.6, kante:{art:'bogen', w:-3.2, bez:'Armloch'}}]},
+      {p:[f.halsweite,0], r:1.2, kante:{art:'gerade', bez:'Schulternaht'}},
+      {p:[f.schulter,f.schulterfall], r:1.4, kante:{art:'bogen', w:-3.2, bez:'Armloch'}}]},
     raglan:{bez:'Raglan', vor:f=>{f.armwinkel=34; f.armlaenge=27; f.armweite=17;},
       bau:(f)=>{ const s=armPunkte(f,[f.halsweite,0]); return [
         {p:[f.halsweite,0], r:0, kante:{art:'bogen', w:1.4, bez:'Raglannaht oben'}},
         {p:s.aus, r:1.3, kante:{art:'gerade', bez:'Ärmelsaum'}},
         {p:s.ein, r:1.3, kante:{art:'bogen', w:-1.4, bez:'Raglannaht unten'}}]; }}
   }},
-  koerper:{ bez:'Körperform', opt:{
-    gerade:{bez:'Gerade', bau:(f)=>[{p:[f.weite,f.schulterfall+f.armloch], r:1.6,
-      kante:{art:'gerade', bez:'Seitennaht'}}]},
-    tailliert:{bez:'Tailliert', vor:f=>{f.saumweite=f.weite-0.5;},
+  koerper:{ bez:'Passform', opt:{
+    // Die drei Schnitte stammen aus blatt_shirts.jpeg. 'setzt' schreibt die
+    // gemessenen Werte in den Entwurf, danach bleiben die Regler frei.
+    regular:{bez:'Regular',
+      setzt:{weite:21.6, laenge:70, schulter:16, schulterfall:1.5, armloch:24.6, armlaenge:26, armwinkel:38, armweite:13.5, halsweite:9.8, halstiefe:5},
+      bau:(f)=>[{p:[f.weite,f.schulterfall+f.armloch], r:1.6,
+        kante:{art:'gerade', bez:'Seitennaht'}}]},
+    oversized:{bez:'Oversized',
+      setzt:{weite:24.7, laenge:61.6, schulter:24, schulterfall:6, armloch:24.0, armlaenge:20.9, armwinkel:38, armweite:16.6, halsweite:8.8, halstiefe:5},
+      vor:f=>{f.saumweite = f.weite + 1.2;},
+      bau:(f)=>[{p:[f.weite,f.schulterfall+f.armloch], r:2.0,
+        kante:{art:'bogen', w:0.7, bez:'Seitennaht'}}]},
+    cropped:{bez:'Cropped',
+      setzt:{weite:22.4, laenge:44.1, schulter:16, schulterfall:1.5, armloch:23.2, armlaenge:22.5, armwinkel:32, armweite:15.7, halsweite:10.7, halstiefe:4.5},
+      bau:(f)=>[{p:[f.weite,f.schulterfall+f.armloch], r:1.6,
+        kante:{art:'gerade', bez:'Seitennaht'}}]},
+    tailliert:{bez:'Tailliert', vor:f=>{f.saumweite = f.weite-0.5;},
       bau:(f)=>[{p:[f.weite,f.schulterfall+f.armloch], r:1.6,
         kante:{art:'bogen', w:-3.0, bez:'Seitennaht'}}]},
-    alinie:{bez:'A-Linie', vor:f=>{f.saumweite=f.weite+9;},
+    alinie:{bez:'A-Linie', vor:f=>{f.saumweite = f.weite+8;},
       bau:(f)=>[{p:[f.weite,f.schulterfall+f.armloch], r:1.6,
         kante:{art:'bogen', w:1.2, bez:'Seitennaht'}}]},
-    kastig:{bez:'Kastig', vor:f=>{f.weite+=5; f.armloch+=3;},
-      bau:(f)=>[{p:[f.weite,f.schulterfall+f.armloch], r:2.2,
-        kante:{art:'gerade', bez:'Seitennaht'}}]},
-    ballon:{bez:'Ballon', vor:f=>{f.saumweite=f.weite-3;},
+    ballon:{bez:'Ballon', vor:f=>{f.saumweite = f.weite-3;},
       bau:(f)=>[{p:[f.weite,f.schulterfall+f.armloch], r:1.6,
         kante:{art:'bogen', w:4.5, bez:'Seitennaht'}}]}
   }},
@@ -595,21 +608,26 @@ const TEILE = {
       bau:(f)=>[{p:[0,0], r:0, kante:{art:'bogen', w:-0.8, bez:'Gummibund'}}]}
   }},
   bein:{ bez:'Beinform', opt:{
-    gerade:{bez:'Straight', bau:(f)=>[
-      {p:[f.bundweite,0], r:0.8, kante:{art:'bogen', w:1.0, bez:'Seitennaht'}},
-      {p:[f.bundweite*1.12,f.schritt*0.82], r:0, kante:{art:'gerade', bez:'Außenbein'}}]},
-    baggy:{bez:'Baggy', vor:f=>{f.beinweite=19; f.bundweite+=1.5;}, bau:(f)=>[
-      {p:[f.bundweite,0], r:0.8, kante:{art:'bogen', w:1.6, bez:'Seitennaht'}},
-      {p:[f.bundweite*1.2,f.schritt*0.8], r:0, kante:{art:'bogen', w:1.6, bez:'Außenbein'}}]},
-    weit:{bez:'Wide Leg', vor:f=>{f.beinweite=24; f.bundweite+=1;}, bau:(f)=>[
+    // Straight, Baggy und Slim sind aus blatt_pants.jpeg gemessen; der
+    // Hueftfaktor ist das Verhaeltnis Hueftbreite zu Bundbreite.
+    gerade:{bez:'Straight', setzt:{bundweite:16.3, beinweite:13.6, beinlaenge:99},
+      bau:(f)=>[
+        {p:[f.bundweite,0], r:0.8, kante:{art:'bogen', w:1.0, bez:'Seitennaht'}},
+        {p:[f.bundweite*1.172, f.schritt*0.82], r:0, kante:{art:'gerade', bez:'Außenbein'}}]},
+    baggy:{bez:'Baggy', setzt:{bundweite:16.6, beinweite:16.1, beinlaenge:97},
+      bau:(f)=>[
+        {p:[f.bundweite,0], r:0.8, kante:{art:'bogen', w:1.8, bez:'Seitennaht'}},
+        {p:[f.bundweite*1.459, f.schritt*0.80], r:0, kante:{art:'bogen', w:1.4, bez:'Außenbein'}}]},
+    slim:{bez:'Slim', setzt:{bundweite:16.5, beinweite:6.6, beinlaenge:94},
+      bau:(f)=>[
+        {p:[f.bundweite,0], r:0.8, kante:{art:'bogen', w:0.6, bez:'Seitennaht'}},
+        {p:[f.bundweite*1.072, f.schritt*0.85], r:0, kante:{art:'bogen', w:-1.0, bez:'Außenbein'}}]},
+    weit:{bez:'Wide Leg', vor:f=>{f.beinweite=22;}, bau:(f)=>[
       {p:[f.bundweite,0], r:0.8, kante:{art:'bogen', w:1.2, bez:'Seitennaht'}},
-      {p:[f.bundweite*1.1,f.schritt*0.78], r:0, kante:{art:'gerade', bez:'Außenbein'}}]},
-    slim:{bez:'Slim', vor:f=>{f.beinweite=8.5;}, bau:(f)=>[
-      {p:[f.bundweite,0], r:0.8, kante:{art:'bogen', w:0.8, bez:'Seitennaht'}},
-      {p:[f.bundweite*1.05,f.schritt*0.85], r:0, kante:{art:'bogen', w:-1.2, bez:'Außenbein'}}]},
-    carrot:{bez:'Carrot', vor:f=>{f.beinweite=10;}, bau:(f)=>[
+      {p:[f.bundweite*1.30, f.schritt*0.78], r:0, kante:{art:'gerade', bez:'Außenbein'}}]},
+    carrot:{bez:'Carrot', vor:f=>{f.beinweite=9;}, bau:(f)=>[
       {p:[f.bundweite+2.5,0], r:0.8, kante:{art:'bogen', w:2.6, bez:'Seitennaht'}},
-      {p:[f.bundweite*1.18,f.schritt*0.9], r:0, kante:{art:'bogen', w:-2.0, bez:'Außenbein'}}]}
+      {p:[f.bundweite*1.40, f.schritt*0.9], r:0, kante:{art:'bogen', w:-2.0, bez:'Außenbein'}}]}
   }},
   hosensaum:{ bez:'Hosensaum', opt:{
     gerade:{bez:'Gerade', bau:(f)=>hosenSaumBau(f, 0, 0.5, false)},
@@ -655,7 +673,7 @@ const BASEN = {
     bez:'Oberteil',
     slots:[{id:'ausschnitt', geteilt:false}, {id:'aermel', geteilt:true},
            {id:'koerper', geteilt:true}, {id:'saum', geteilt:true}],
-    standard:{ausschnitt:'rund', aermel:'kurz', koerper:'gerade', saum:'gerade'},
+    standard:{ausschnitt:'rund', aermel:'kurz', koerper:'regular', saum:'gerade'},
     regler:[
       {k:'weite',        bez:'Weite',           min:18, max:42, s:0.5, geteilt:true},
       {k:'laenge',       bez:'Länge',           min:36, max:98, s:0.5, geteilt:true},
@@ -1274,6 +1292,22 @@ function werkzeugBasis(wZeile){
     }));
 }
 
+// Ein Baustein darf gemessene Werte mitbringen ('setzt'). Die werden beim
+// Anklicken einmal in den Entwurf geschrieben - danach bleiben die Regler
+// frei, statt bei jedem Zeichnen ueberschrieben zu werden.
+function werteUebernehmen(option){
+  if (!option || !option.setzt) return;
+  const regler = BASEN[entwurf.basis].regler;
+  for (const [k, wert] of Object.entries(option.setzt)){
+    const r = regler.find(x => x.k === k);
+    if (r && r.geteilt === false){
+      for (const z of ['vorne','hinten']) entwurf.ansichten[z].form[k] = wert;
+    } else {
+      entwurf.form[k] = wert;
+    }
+  }
+}
+
 function werkzeugSlot(wZeile, a, slot){
   if (!slot) return;
   const def = TEILE[slot.id];
@@ -1288,6 +1322,7 @@ function werkzeugSlot(wZeile, a, slot){
         av.slots[seite][slot.id] = id;
         if (entwurf.symmetrie) av.slots.links[slot.id] = av.slots.rechts[slot.id];
       }
+      werteUebernehmen(def.opt[id]);
       panelBauen(); allesZeichnen();
     }));
 }
