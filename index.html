@@ -91,6 +91,8 @@
 
   /* ---------- Umschalter ---------- */
   .schalter{ display:inline-flex; gap:.8rem; }
+  /* display schlaegt das hidden-Attribut - darum ausdruecklich zuruecknehmen */
+  .schalter[hidden]{ display:none; }
   .schalter button{
     background:none; border:0; border-bottom:2px solid transparent;
     padding:.14rem 0; cursor:pointer; font-size:.82rem; color:var(--grau);
@@ -100,88 +102,34 @@
     color:var(--tinte); font-weight:600; border-bottom-color:var(--tinte);
   }
 
-  /* ---------- Grundraster ---------- */
-  .raster{ display:grid; grid-template-columns:302px 1fr; min-height:calc(100vh - 53px); }
+  /* ---------- Grundgerüst ----------
+     Die Arbeitsfläche bekommt allen Platz, der übrig bleibt. Gesteuert
+     wird darunter, direkt an der Zeichnung - nicht in einer Spalte am
+     anderen Bildschirmrand. */
+  body{ display:flex; flex-direction:column; height:100vh; overflow:hidden; }
+  header{ flex:none; }
+  main{ flex:1; min-height:0; display:flex; flex-direction:column; }
 
-  aside{
-    background:var(--papier); border-right:1px solid var(--linie);
-    padding:1rem .95rem 3rem; overflow-y:auto; max-height:calc(100vh - 53px);
+  .buehne{
+    flex:1; min-height:0; display:grid; grid-template-columns:1fr 1fr;
+    gap:.9rem; padding:.9rem; background:var(--tisch);
   }
-  .abschnitt{
-    display:flex; align-items:baseline; gap:.5rem;
-    font-size:.82rem; font-weight:600; color:var(--tinte);
-    margin:1.35rem 0 .45rem;
-  }
-  .abschnitt:first-child{ margin-top:.2rem; }
-  .abschnitt .zusatz{
-    margin-left:auto; font-weight:400; font-family:var(--zahl);
-    font-size:.66rem; color:var(--grau);
-  }
-
-  /* ---------- Auswahl: unterstreichen statt einrahmen ---------- */
-  .chips{ display:flex; flex-wrap:wrap; gap:.1rem .95rem; }
-  .chip{
-    background:none; border:0; border-bottom:2px solid transparent;
-    padding:.14rem 0; cursor:pointer; font-size:.84rem; color:var(--grau);
-  }
-  .chip:hover{ color:var(--tinte); border-bottom-color:var(--linie2); }
-  .chip[aria-pressed="true"]{ color:var(--tinte); font-weight:600; border-bottom-color:var(--tinte); }
-  .chip.zufuegen{ color:var(--grau); }
-  .chip.zufuegen::before{ content:'+ '; color:var(--leise); }
-  .chip.zufuegen:hover{ color:var(--tinte); }
-
-  /* ---------- Regler und Felder ---------- */
-  .feld{ margin-bottom:.85rem; }
-  .feld label{
-    display:flex; justify-content:space-between; align-items:baseline;
-    font-size:.8rem; color:var(--tinte); margin-bottom:.3rem; gap:.5rem;
-  }
-  .feld label .wert{ font-family:var(--zahl); font-size:.8rem; color:var(--tinte); }
-  .feld.geteilt label::after{
-    content:'beide Ansichten'; font-family:var(--zahl); font-size:.62rem;
-    color:var(--grau); order:1; margin-left:auto;
-  }
-  .feld.geteilt label .wert{ order:2; margin-left:.55rem; }
-  .feld input[type=range]{
-    width:100%; accent-color:var(--tinte); height:1.1rem;
-  }
-  .feld input[type=number], .feld input[type=text]{
-    width:100%; padding:.4rem .5rem; border:1px solid var(--linie2);
-    background:var(--blatt); color:var(--tinte); border-radius:2px;
-    font-family:var(--zahl); font-size:.86rem;
-  }
-  .feld input[type=file]{ font-size:.8rem; color:var(--grau); }
-
-  .hinweis{ font-size:.8rem; color:var(--grau); margin:.45rem 0; }
-  .hinweis.tipp{
-    border-left:1px solid var(--linie2); padding:.15rem 0 .15rem .65rem; color:var(--grau);
-  }
-  .hinweis.warn{
-    border-left:3px solid var(--tinte); padding:.15rem 0 .15rem .65rem; color:var(--tinte);
-  }
-
-  /* ---------- Buehne ---------- */
-  main{ padding:1.15rem; display:flex; flex-direction:column; gap:.9rem; }
-  .ansichten{ display:grid; grid-template-columns:1fr 1fr; gap:1rem; align-items:start; }
   .ansicht{
-    background:var(--blatt); border:1px solid var(--linie);
-    padding:.9rem; cursor:pointer; border-radius:2px;
-    display:flex; flex-direction:column; align-items:center; gap:.5rem;
+    background:var(--blatt); border:1px solid var(--linie); border-radius:2px;
+    padding:.75rem; cursor:pointer; min-height:0;
+    display:flex; flex-direction:column; gap:.45rem;
   }
   .ansicht[aria-current="true"]{ border-color:var(--tinte); }
   .ansicht .marke{
-    align-self:flex-start; font-size:.76rem; color:var(--grau);
+    flex:none; align-self:flex-start; font-size:.76rem; color:var(--grau);
     border-bottom:2px solid transparent; padding-bottom:.1rem;
   }
   .ansicht[aria-current="true"] .marke{
     color:var(--tinte); font-weight:600; border-bottom-color:var(--tinte);
   }
+  svg.flat{ flex:1; min-height:0; width:100%; height:100%; touch-action:none; display:block; }
 
-  svg.flat{
-    width:100%; max-width:340px; max-height:56vh; height:auto;
-    touch-action:none; display:block; margin-inline:auto;
-  }
-  /* Strichstaerke traegt die Hierarchie, nicht die Farbe. */
+  /* ---------- Zeichnung: die Strichstärke trägt die Hierarchie ---------- */
   .flat .stoff{
     fill:var(--stoff); stroke:var(--tinte); stroke-width:1.6;
     stroke-linejoin:round; vector-effect:non-scaling-stroke;
@@ -195,7 +143,6 @@
     stroke:var(--grau); stroke-width:0.8; stroke-dasharray:5 4;
     vector-effect:non-scaling-stroke;
   }
-  /* Rechte Seite gefuellt, linke hohl - Unterscheidung ohne Farbe. */
   .flat .griff{ fill:var(--tinte); stroke:none; cursor:grab; }
   .flat .griff.links{
     fill:var(--blatt); stroke:var(--tinte); stroke-width:1.6;
@@ -205,13 +152,84 @@
   .flat .treffer{ fill:none; stroke:transparent; stroke-width:9; vector-effect:non-scaling-stroke; cursor:pointer; }
   .flat .kanteaktiv{ fill:none; stroke:var(--tinte); stroke-width:4; vector-effect:non-scaling-stroke; opacity:.3; }
 
-  .fussleiste{
-    background:var(--papier); border:1px solid var(--linie); border-radius:2px;
-    padding:.65rem .95rem; display:flex; gap:.7rem; align-items:center; flex-wrap:wrap;
+  /* ---------- Steuerleiste ---------- */
+  .leiste{
+    flex:none; background:var(--papier); border-top:1px solid var(--linie2);
+    max-height:46vh; overflow-y:auto;
   }
-  .fussleiste .hinweis{ margin:0; margin-right:auto; font-family:var(--zahl); font-size:.72rem; }
+  .leiste .zeile{ display:flex; align-items:center; gap:.9rem; flex-wrap:wrap; padding:.5rem .95rem; }
+  .leiste .kopfzeile{ border-bottom:1px solid var(--linie); }
+  .leiste .status{
+    font-family:var(--zahl); font-size:.71rem; color:var(--grau);
+    margin-left:auto; text-align:right;
+  }
+  .leiste .reiter{ gap:1.05rem; padding-bottom:.35rem; }
+  .leiste .reiter:empty, .leiste .werkzeug:empty{ display:none; }
+  .leiste .werkzeug{ align-items:flex-start; padding-top:.35rem; padding-bottom:.9rem; }
 
-  /* ---------- Dialoge ---------- */
+  .reiter button{
+    background:none; border:0; border-bottom:2px solid transparent;
+    padding:.16rem 0; cursor:pointer; font-size:.83rem; color:var(--grau);
+  }
+  .reiter button:hover{ color:var(--tinte); border-bottom-color:var(--linie2); }
+  .reiter button[aria-pressed="true"]{ color:var(--tinte); font-weight:600; border-bottom-color:var(--tinte); }
+  .reiter .marke{ font-family:var(--zahl); font-size:.66rem; color:var(--grau); margin-left:auto; }
+
+  /* ---------- Auswahl ---------- */
+  .chips{ display:flex; flex-wrap:wrap; gap:.15rem 1.05rem; }
+  .chip{
+    background:none; border:0; border-bottom:2px solid transparent;
+    padding:.14rem 0; cursor:pointer; font-size:.85rem; color:var(--grau);
+  }
+  .chip:hover{ color:var(--tinte); border-bottom-color:var(--linie2); }
+  .chip[aria-pressed="true"]{ color:var(--tinte); font-weight:600; border-bottom-color:var(--tinte); }
+  .chip.zufuegen::before{ content:'+ '; color:var(--leise); }
+  .chip.zufuegen:hover{ color:var(--tinte); }
+
+  /* ---------- Regler ---------- */
+  .regler{
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
+    gap:.1rem 1.4rem; width:100%;
+  }
+  .feld{ margin-bottom:.5rem; }
+  .feld label{
+    display:flex; justify-content:space-between; align-items:baseline;
+    font-size:.78rem; color:var(--tinte); margin-bottom:.15rem; gap:.5rem;
+  }
+  .feld label .wert{ font-family:var(--zahl); font-size:.78rem; color:var(--tinte); }
+  .feld.geteilt label::after{
+    content:'beide'; font-family:var(--zahl); font-size:.6rem;
+    color:var(--grau); order:1; margin-left:auto;
+  }
+  .feld.geteilt label .wert{ order:2; margin-left:.5rem; }
+  .feld input[type=range]{ width:100%; accent-color:var(--tinte); height:1rem; }
+  .feld input[type=number], .feld input[type=text]{
+    width:100%; padding:.35rem .45rem; border:1px solid var(--linie2);
+    background:var(--blatt); color:var(--tinte); border-radius:2px;
+    font-family:var(--zahl); font-size:.84rem;
+  }
+  .feld input[type=file]{ font-size:.78rem; color:var(--grau); }
+
+  .hinweis{ font-size:.79rem; color:var(--grau); margin:0; max-width:62ch; }
+  .hinweis.warn{ border-left:3px solid var(--tinte); padding-left:.6rem; color:var(--tinte); }
+  .spalte{ display:flex; flex-direction:column; gap:.45rem; align-items:flex-start; }
+
+  /* ---------- Regal ---------- */
+  .regal{
+    flex:none; background:var(--papier); border-top:1px solid var(--linie2);
+    padding:.75rem .95rem; max-height:34vh; overflow-y:auto;
+  }
+  .regal[hidden]{ display:none; }
+  .regal .reihe{ display:flex; gap:.6rem; align-items:flex-start; overflow-x:auto; padding-bottom:.35rem; }
+  .karte{
+    flex:none; width:96px; background:var(--blatt); border:1px solid var(--linie);
+    border-radius:2px; padding:.3rem; cursor:pointer; text-align:center;
+  }
+  .karte:hover{ border-color:var(--tinte); }
+  .karte svg{ width:100%; height:74px; display:block; }
+  .karte .bez{ font-size:.68rem; color:var(--grau); margin-top:.15rem; word-break:break-word; }
+
+  /* ---------- Dialog ---------- */
   dialog{
     border:1px solid var(--linie2); border-radius:2px; padding:0;
     background:var(--papier); color:var(--tinte);
@@ -221,30 +239,33 @@
   dialog::backdrop{ background:rgba(0,0,0,.5); }
   dialog .inhalt{ padding:1.2rem; }
   dialog h2{ font-size:1.05rem; font-weight:600; margin:0 0 .8rem; }
-  .regal{ display:grid; grid-template-columns:repeat(auto-fill,minmax(112px,1fr)); gap:.6rem; }
-  .karte{
-    background:var(--blatt); border:1px solid var(--linie); border-radius:2px;
-    padding:.35rem; cursor:pointer; text-align:center;
+  .abschnitt{
+    display:flex; align-items:baseline; gap:.5rem;
+    font-size:.8rem; font-weight:600; color:var(--tinte); margin:1.1rem 0 .4rem;
   }
-  .karte:hover{ border-color:var(--tinte); }
-  .karte svg{ width:100%; height:auto; display:block; }
-  .karte .bez{ font-size:.72rem; color:var(--grau); margin-top:.2rem; word-break:break-word; }
+  .abschnitt .zusatz{
+    margin-left:auto; font-weight:400; font-family:var(--zahl);
+    font-size:.65rem; color:var(--grau);
+  }
   textarea.ausgabe{
     width:100%; height:150px; font-family:var(--zahl); font-size:.72rem;
     border:1px solid var(--linie2); border-radius:2px;
     background:var(--blatt); color:var(--tinte); padding:.55rem;
   }
 
-  @media (max-width: 900px){
-    .raster{ grid-template-columns:1fr; min-height:0; align-content:start; }
-    aside{ max-height:none; border-right:0; border-bottom:1px solid var(--linie); order:2; }
-    main{ order:1; padding:.8rem; }
-    .ansichten{ grid-template-columns:1fr 1fr; gap:.6rem; }
-    .ansicht{ padding:.6rem; }
-    svg.flat{ max-height:38vh; }
-    header{ padding:.65rem .8rem; gap:.6rem; }
-    header h1{ font-size:.92rem; }
-    .rechts{ gap:.85rem; }
+  @media (max-width: 760px){
+    header{ padding:.6rem .8rem; gap:.55rem; }
+    header h1{ font-size:.9rem; }
+    header .entwurfname{ min-width:7rem; font-size:.82rem; }
+    /* Auf dem Handy nur so hoch wie die Zeichnung wirklich ist - der
+       gewonnene Platz geht an die Steuerleiste, wo man tatsaechlich tippt. */
+    .buehne{ padding:.55rem; gap:.55rem; flex:0 0 auto; }
+    .ansicht{ padding:.5rem; }
+    svg.flat{ flex:none; height:auto; }
+    .leiste{ flex:1; min-height:0; max-height:none; }
+    .leiste .zeile{ gap:.75rem; padding:.45rem .7rem; }
+    .leiste .status{ width:100%; text-align:left; margin-left:0; order:9; }
+    .regler{ grid-template-columns:1fr 1fr; gap:.1rem .8rem; }
   }
 </style>
 </head>
@@ -259,46 +280,53 @@
       <button data-licht="dunkel" aria-pressed="false">Dunkel</button>
     </div>
     <span class="trenner" aria-hidden="true"></span>
-    <div class="schalter" id="symSchalter" role="group" aria-label="Symmetrie">
-      <button data-sym="1" aria-pressed="true">Symmetrisch</button>
-      <button data-sym="0" aria-pressed="false">Asymmetrisch</button>
-    </div>
-    <span class="trenner" aria-hidden="true"></span>
-    <button class="knopf" id="btnRegal">Inventar</button>
-    <button class="knopf" id="btnSpeichern">Ins Inventar legen</button>
-    <button class="knopf stark" id="btnExport">Export</button>
+    <button class="knopf" id="btnExport">Export</button>
   </div>
 </header>
 
-<div class="raster">
-  <aside id="panel"></aside>
-  <main>
-    <div class="ansichten">
-      <div class="ansicht" id="ansichtVorne" aria-current="true" tabindex="0">
-        <span class="marke">Vorne</span>
-        <svg class="flat" id="svgVorne" xmlns="http://www.w3.org/2000/svg"></svg>
-      </div>
-      <div class="ansicht" id="ansichtHinten" tabindex="0">
-        <span class="marke">Hinten</span>
-        <svg class="flat" id="svgHinten" xmlns="http://www.w3.org/2000/svg"></svg>
-      </div>
+<main>
+  <!-- Arbeitsfläche: nimmt allen Platz, der übrig ist -->
+  <div class="buehne">
+    <div class="ansicht" id="ansichtVorne" aria-current="true" tabindex="0">
+      <span class="marke">Vorne</span>
+      <svg class="flat" id="svgVorne" xmlns="http://www.w3.org/2000/svg"></svg>
     </div>
-    <div class="fussleiste">
-      <span class="hinweis" id="statuszeile"></span>
-      <div class="schalter" id="modusSchalter" role="group" aria-label="Bearbeiten">
+    <div class="ansicht" id="ansichtHinten" tabindex="0">
+      <span class="marke">Hinten</span>
+      <svg class="flat" id="svgHinten" xmlns="http://www.w3.org/2000/svg"></svg>
+    </div>
+  </div>
+
+  <!-- Regal: klappt über der Steuerleiste auf, statt ein Fenster zu öffnen -->
+  <div class="regal" id="regalStreifen" hidden>
+    <div id="regalInhalt"></div>
+  </div>
+
+  <!-- Steuerleiste: was du änderst, liegt direkt unter dem, was sich ändert -->
+  <div class="leiste">
+    <div class="zeile kopfzeile">
+      <div class="schalter" id="modusSchalter" role="group" aria-label="Werkzeug">
         <button data-modus="bausteine" aria-pressed="true">Bausteine</button>
         <button data-modus="form" aria-pressed="false">Form</button>
         <button data-modus="punkte" aria-pressed="false">Punkte</button>
       </div>
+      <span class="trenner" aria-hidden="true"></span>
+      <div class="schalter" id="symSchalter" role="group" aria-label="Symmetrie">
+        <button data-sym="1" aria-pressed="true">Symmetrisch</button>
+        <button data-sym="0" aria-pressed="false">Asymmetrisch</button>
+      </div>
+      <div class="schalter" id="seiteSchalter" role="group" aria-label="Seite" hidden>
+        <button data-seite="rechts" aria-pressed="true">Rechte Seite</button>
+        <button data-seite="links" aria-pressed="false">Linke Seite</button>
+      </div>
+      <span class="status" id="statuszeile"></span>
+      <button class="knopf" id="btnRegal" aria-expanded="false">Regal</button>
+      <button class="knopf stark" id="btnSpeichern">Ablegen</button>
     </div>
-  </main>
-</div>
-
-<dialog id="dlgRegal"><div class="inhalt">
-  <h2>Inventar</h2>
-  <div id="regalInhalt"></div>
-  <p style="margin-top:1rem"><button class="knopf stark" onclick="document.getElementById('dlgRegal').close()">Schließen</button></p>
-</div></dialog>
+    <div class="zeile reiter" id="reiterZeile"></div>
+    <div class="zeile werkzeug" id="werkzeugZeile"></div>
+  </div>
+</main>
 
 <dialog id="dlgExport"><div class="inhalt">
   <h2>Export</h2>
@@ -1055,6 +1083,7 @@ function insInventar(){
   if (vorhanden >= 0) liste[vorhanden] = eintrag; else liste.push(eintrag);
   invSchreiben(liste);
   panelBauen();
+  if (!document.getElementById('regalStreifen').hidden) regalBauen();
   meldung(vorhanden >= 0 ? `„${name}" im Inventar aktualisiert` : `„${name}" liegt jetzt im Inventar`);
 }
 function ausInventar(i){
@@ -1066,6 +1095,7 @@ function ausInventar(i){
   for (const k of ['vorne','hinten'])
     if (!entwurf.ansichten[k]) entwurf.ansichten[k] = neueAnsicht(entwurf.basis);
   document.getElementById('entwurfName').value = entwurf.name || liste[i].name;
+  reiter = null;
   symSchalterSetzen();
   panelBauen(); allesZeichnen();
   meldung(`„${liste[i].name}" geladen`);
@@ -1118,135 +1148,97 @@ function hinweis(text, art){
   return p;
 }
 
+/* Welcher Reiter in der Steuerleiste gerade offen ist. 'basis' und
+   'details' sind eigene Reiter, dazwischen die Steckplaetze der Basis. */
+let reiter = null;
+function reiterListe(){
+  return ['basis'].concat(BASEN[entwurf.basis].slots.map(s => s.id)).concat(['details']);
+}
+function reiterName(id){
+  if (id === 'basis') return 'Basis';
+  if (id === 'details') return 'Details';
+  return TEILE[id] ? TEILE[id].bez : id;
+}
+function reiterPruefen(){
+  const liste = reiterListe();
+  if (!liste.includes(reiter)) reiter = liste[1] || liste[0];
+}
+
 function panelBauen(){
-  const panel = document.getElementById('panel');
-  panel.innerHTML = '';
+  const rZeile = document.getElementById('reiterZeile');
+  const wZeile = document.getElementById('werkzeugZeile');
+  rZeile.innerHTML = ''; wZeile.innerHTML = '';
   const a = entwurf.ansichten[aktiveAnsicht];
   const B = BASEN[entwurf.basis];
 
+  // Seitenwahl nur zeigen, wenn sie etwas bewirkt
+  const sSch = document.getElementById('seiteSchalter');
+  sSch.hidden = entwurf.symmetrie || modus !== 'bausteine';
+  sSch.querySelectorAll('button').forEach(b =>
+    b.setAttribute('aria-pressed', String(b.dataset.seite === aktiveSeite)));
+
   if (modus === 'bausteine'){
-    panel.appendChild(abschnitt('Basis'));
-    const eigene = invLesen();
-    panel.appendChild(chipReihe(
-      Object.keys(BASEN).map(id => ({id, bez:BASEN[id].bez})),
-      entwurf.basis,
-      id => {
-        if (id === entwurf.basis) return;
-        const name = document.getElementById('entwurfName').value;
-        const alteDetails = {vorne:entwurf.ansichten.vorne.details, hinten:entwurf.ansichten.hinten.details};
-        entwurf = neuerEntwurf(id);
-        for (const v of ['vorne','hinten'])
-          entwurf.ansichten[v].details = alteDetails[v].filter(d => {
-            const def = DETAILS[d.typ];
-            return def && (!def.basen || def.basen.includes(id));
-          });
-        entwurf.ansichten.hinten.form.halstiefe = 2.4;
-        entwurf.ansichten.hinten.form.laengeExtra = 1.5;
-        document.getElementById('entwurfName').value = name;
-        symSchalterSetzen(); panelBauen(); allesZeichnen();
-      }));
-    if (eigene.length){
-      panel.appendChild(abschnitt('Eigene Basen', eigene.length + ' im Inventar'));
-      panel.appendChild(chipReihe(
-        eigene.map((e,i) => ({id:i, bez:e.name})), null, i => ausInventar(i), 'zufuegen'));
-    }
-
-    if (a.punkte){
-      panel.appendChild(abschnitt('Bausteine'));
-      panel.appendChild(hinweis('Diese Ansicht ist auf Punkte eingefroren. Solange das so ist, '
-        + 'wirken Bausteine und Form nicht. Im Reiter „Punkte" kannst du sie wieder auflösen.', 'warn'));
-    } else {
-      if (!entwurf.symmetrie){
-        panel.appendChild(abschnitt('Seite'));
-        panel.appendChild(chipReihe(
-          [{id:'rechts', bez:'Rechte Seite'}, {id:'links', bez:'Linke Seite'}],
-          aktiveSeite, s => { aktiveSeite = s; panelBauen(); }));
-        panel.appendChild(hinweis('Die Bausteine gelten nur für die gewählte Seite. '
-          + 'Die Regler unter „Form" gelten weiter für das ganze Teil.'));
-      }
-      for (const s of B.slots){
-        const def = TEILE[s.id];
-        panel.appendChild(abschnitt(def.bez, s.geteilt ? 'beide Ansichten' : 'nur ' + (aktiveAnsicht==='vorne'?'vorne':'hinten')));
-        const seite = entwurf.symmetrie ? 'rechts' : aktiveSeite;
-        panel.appendChild(chipReihe(
-          Object.keys(def.opt).map(id => ({id, bez:def.opt[id].bez})),
-          a.slots[seite][s.id],
-          id => {
-            const ziele = s.geteilt ? ['vorne','hinten'] : [aktiveAnsicht];
-            for (const z of ziele){
-              const av = entwurf.ansichten[z];
-              av.slots[seite][s.id] = id;
-              if (entwurf.symmetrie) av.slots.links[s.id] = av.slots.rechts[s.id];
-            }
-            panelBauen(); allesZeichnen();
-          }));
-      }
-    }
-
-    panel.appendChild(abschnitt('Details', 'nur ' + (aktiveAnsicht==='vorne'?'vorne':'hinten')));
-    const box = document.createElement('div'); box.className = 'chips';
-    for (const t in DETAILS){
-      const def = DETAILS[t];
-      if (def.basen && !def.basen.includes(entwurf.basis)) continue;
+    reiterPruefen();
+    for (const id of reiterListe()){
       const b = document.createElement('button');
-      b.className = 'chip zufuegen'; b.textContent = def.bez;
-      b.addEventListener('click', () => {
-        a.details.push({typ:t, p:DETAILS[t].start.slice()});
-        panelBauen(); allesZeichnen();
-      });
-      box.appendChild(b);
+      b.textContent = reiterName(id);
+      b.setAttribute('aria-pressed', String(id === reiter));
+      b.addEventListener('click', () => { reiter = id; panelBauen(); });
+      rZeile.appendChild(b);
     }
-    panel.appendChild(box);
-    if (a.details.length){
-      panel.appendChild(abschnitt('Liegt drauf', a.details.length + ''));
-      a.details.forEach((d,i) => {
-        const z = document.createElement('div');
-        z.style.cssText = 'display:flex; align-items:center; gap:.7rem; margin-bottom:.3rem; font-size:.81rem;';
-        const n = document.createElement('span'); n.textContent = DETAILS[d.typ].bez; n.style.flex = '1';
-        const w = document.createElement('button');
-        w.className = 'knopf'; w.textContent = 'entfernen';
-        w.addEventListener('click', () => { a.details.splice(i,1); panelBauen(); allesZeichnen(); });
-        z.append(n, w); panel.appendChild(z);
-      });
-      panel.appendChild(hinweis('Den lila Punkt in der Zeichnung ziehen verschiebt ein Detail.'));
+    const slot = B.slots.find(s => s.id === reiter);
+    if (slot){
+      const m = document.createElement('span');
+      m.className = 'marke';
+      m.textContent = slot.geteilt ? 'gilt für beide Ansichten'
+                                   : 'gilt nur ' + (aktiveAnsicht === 'vorne' ? 'vorne' : 'hinten');
+      rZeile.appendChild(m);
     }
+    if (a.punkte){
+      wZeile.appendChild(hinweis('Diese Ansicht ist auf Punkte eingefroren — Bausteine und Form wirken '
+        + 'darauf nicht. Unter „Punkte" kannst du sie wieder auflösen.', 'warn'));
+      return;
+    }
+    if (reiter === 'basis')        werkzeugBasis(wZeile);
+    else if (reiter === 'details') werkzeugDetails(wZeile, a);
+    else                           werkzeugSlot(wZeile, a, slot);
   }
 
   if (modus === 'form'){
     if (a.punkte){
-      panel.appendChild(abschnitt('Form'));
-      panel.appendChild(hinweis('Diese Ansicht ist auf Punkte eingefroren — die Regler wirken erst wieder, '
-        + 'wenn du die Punkte im Reiter „Punkte" auflöst.', 'warn'));
-    } else {
-      panel.appendChild(abschnitt('Form'));
-      panel.appendChild(hinweis('Werte mit dem Vermerk „beide Ansichten" halten Vorder- und Rückseite '
-        + 'zusammen. Alles andere gilt nur für die gerade bearbeitete Ansicht.', 'tipp'));
-      for (const r of B.regler){
-        const quelle = r.geteilt ? entwurf.form : a.form;
-        const wert = quelle[r.k] ?? FORM_STANDARD[r.k] ?? 0;
-        panel.appendChild(reglerFeld(r.bez, wert, r.min, r.max, r.s, r.geteilt, val => {
-          if (r.geteilt) entwurf.form[r.k] = val; else a.form[r.k] = val;
-          allesZeichnen();
-        }));
-      }
+      wZeile.appendChild(hinweis('Diese Ansicht ist auf Punkte eingefroren — die Regler wirken erst '
+        + 'wieder, wenn du die Punkte unter „Punkte" auflöst.', 'warn'));
+      return;
     }
+    const gitter = document.createElement('div');
+    gitter.className = 'regler';
+    for (const r of B.regler){
+      const quelle = r.geteilt ? entwurf.form : a.form;
+      const wert = quelle[r.k] ?? FORM_STANDARD[r.k] ?? 0;
+      gitter.appendChild(reglerFeld(r.bez, wert, r.min, r.max, r.s, r.geteilt, val => {
+        if (r.geteilt) entwurf.form[r.k] = val; else a.form[r.k] = val;
+        allesZeichnen();
+      }));
+    }
+    wZeile.appendChild(gitter);
   }
 
   if (modus === 'punkte'){
-    panel.appendChild(abschnitt('Punkte', aktiveAnsicht === 'vorne' ? 'Vorderansicht' : 'Rückansicht'));
+    const spalte = document.createElement('div');
+    spalte.className = 'spalte';
     if (!a.punkte){
-      panel.appendChild(hinweis('Zum freien Ziehen wird die aktuelle Form in eine Punktkette umgewandelt. '
-        + 'Danach wirken Bausteine und Regler auf diese Ansicht nicht mehr — bis du die Punkte wieder auflöst.'));
+      spalte.appendChild(hinweis('Zum freien Ziehen wird die aktuelle Form in eine Punktkette '
+        + 'umgewandelt. Danach wirken Bausteine und Regler auf diese Ansicht nicht mehr — '
+        + 'bis du die Punkte wieder auflöst.'));
       const b = document.createElement('button');
       b.className = 'knopf stark'; b.textContent = 'Punkte erzeugen';
       b.addEventListener('click', () => { einfrieren(aktiveAnsicht); panelBauen(); allesZeichnen(); });
-      panel.appendChild(b);
+      spalte.appendChild(b);
     } else {
-      panel.appendChild(hinweis('Punkt ziehen ändert die Form. Doppelklick auf einen Punkt schaltet zwischen '
-        + 'Ecke (voll) und weichem Übergang (blass) um.', 'tipp'));
-      if (!entwurf.symmetrie)
-        panel.appendChild(hinweis('Lila = rechte Seite, orange = linke Seite. Beide sind unabhängig.'));
-      panel.appendChild(hinweis('Punkte rechts: ' + a.punkte.rechts.length
+      spalte.appendChild(hinweis('Punkt ziehen ändert die Form. Doppelklick schaltet zwischen Ecke '
+        + '(gefüllt) und weichem Übergang (blass) um.'
+        + (entwurf.symmetrie ? '' : ' Gefüllte Griffe sind die rechte Seite, hohle die linke.')));
+      spalte.appendChild(hinweis('Punkte rechts: ' + a.punkte.rechts.length
         + (entwurf.symmetrie ? '' : ' · links: ' + a.punkte.links.length)));
       const b = document.createElement('button');
       b.className = 'knopf'; b.textContent = 'Punkte auflösen, zurück zu den Bausteinen';
@@ -1254,9 +1246,85 @@ function panelBauen(){
         auftauen(aktiveAnsicht); panelBauen(); allesZeichnen();
         meldung('Punkte verworfen — die Bausteine wirken wieder');
       });
-      panel.appendChild(b);
+      spalte.appendChild(b);
     }
+    wZeile.appendChild(spalte);
   }
+}
+
+function werkzeugBasis(wZeile){
+  wZeile.appendChild(chipReihe(
+    Object.keys(BASEN).map(id => ({id, bez:BASEN[id].bez})),
+    entwurf.basis,
+    id => {
+      if (id === entwurf.basis) return;
+      const name = document.getElementById('entwurfName').value;
+      const alte = {vorne:entwurf.ansichten.vorne.details, hinten:entwurf.ansichten.hinten.details};
+      entwurf = neuerEntwurf(id);
+      for (const v of ['vorne','hinten'])
+        entwurf.ansichten[v].details = alte[v].filter(d => {
+          const def = DETAILS[d.typ];
+          return def && (!def.basen || def.basen.includes(id));
+        });
+      entwurf.ansichten.hinten.form.halstiefe = 2.4;
+      entwurf.ansichten.hinten.form.laengeExtra = 1.5;
+      document.getElementById('entwurfName').value = name;
+      reiter = null;
+      symSchalterSetzen(); panelBauen(); allesZeichnen(); regalBauen();
+    }));
+}
+
+function werkzeugSlot(wZeile, a, slot){
+  if (!slot) return;
+  const def = TEILE[slot.id];
+  const seite = entwurf.symmetrie ? 'rechts' : aktiveSeite;
+  wZeile.appendChild(chipReihe(
+    Object.keys(def.opt).map(id => ({id, bez:def.opt[id].bez})),
+    a.slots[seite][slot.id],
+    id => {
+      const ziele = slot.geteilt ? ['vorne','hinten'] : [aktiveAnsicht];
+      for (const z of ziele){
+        const av = entwurf.ansichten[z];
+        av.slots[seite][slot.id] = id;
+        if (entwurf.symmetrie) av.slots.links[slot.id] = av.slots.rechts[slot.id];
+      }
+      panelBauen(); allesZeichnen();
+    }));
+}
+
+function werkzeugDetails(wZeile, a){
+  const spalte = document.createElement('div');
+  spalte.className = 'spalte';
+  const box = document.createElement('div'); box.className = 'chips';
+  for (const t in DETAILS){
+    const def = DETAILS[t];
+    if (def.basen && !def.basen.includes(entwurf.basis)) continue;
+    const b = document.createElement('button');
+    b.className = 'chip zufuegen'; b.textContent = def.bez;
+    b.addEventListener('click', () => {
+      a.details.push({typ:t, p:def.start.slice()});
+      panelBauen(); allesZeichnen();
+    });
+    box.appendChild(b);
+  }
+  spalte.appendChild(box);
+  if (a.details.length){
+    const drauf = document.createElement('div'); drauf.className = 'chips';
+    a.details.forEach((d,i) => {
+      const b = document.createElement('button');
+      b.className = 'chip'; b.setAttribute('aria-pressed','true');
+      b.textContent = DETAILS[d.typ].bez + ' ×';
+      b.title = 'Entfernen';
+      b.addEventListener('click', () => { a.details.splice(i,1); panelBauen(); allesZeichnen(); });
+      drauf.appendChild(b);
+    });
+    spalte.appendChild(drauf);
+    spalte.appendChild(hinweis('Liegt auf der ' + (aktiveAnsicht==='vorne'?'Vorderansicht':'Rückansicht')
+      + '. Den Griff in der Zeichnung ziehen verschiebt ein Detail, Klick oben entfernt es.'));
+  } else {
+    spalte.appendChild(hinweis('Details liegen immer nur auf der gerade bearbeiteten Ansicht.'));
+  }
+  wZeile.appendChild(spalte);
 }
 
 /* =====================================================================
@@ -1366,78 +1434,80 @@ async function inventarEinlesen(datei, ersetzen){
   return {neu, ersetzt, gesamt:liste.length};
 }
 
-function regalZeigen(){
+function regalBauen(){
   const box = document.getElementById('regalInhalt');
   const liste = invLesen();
   box.innerHTML = '';
-  if (!liste.length){
-    box.appendChild(hinweis('Noch nichts im Inventar. Bau etwas und drück oben „Ins Inventar legen" — '
-      + 'der Entwurf steht danach als eigene Basis in der Bausteinliste, von der aus du neu starten kannst.'));
-  } else {
-    const g = document.createElement('div'); g.className = 'regal';
-    liste.forEach((e,i) => {
-      const k = document.createElement('button'); k.className = 'karte';
-      k.appendChild(miniSVG(e.entwurf, 'vorne'));
-      const b = document.createElement('div'); b.className = 'bez'; b.textContent = e.name;
-      k.appendChild(b);
-      k.title = 'Laden — Doppelklick löscht';
-      k.addEventListener('click', () => { ausInventar(i); document.getElementById('dlgRegal').close(); });
-      k.addEventListener('dblclick', () => {
-        const l = invLesen(); l.splice(i,1); invSchreiben(l); regalZeigen(); panelBauen();
-      });
-      g.appendChild(k);
-    });
-    box.appendChild(g);
-    box.appendChild(hinweis('Klick lädt einen Entwurf als Ausgangspunkt. Doppelklick löscht ihn.'));
-  }
 
-  box.appendChild(abschnitt('Mitnehmen', liste.length + (liste.length === 1 ? ' Entwurf' : ' Entwürfe')));
-  box.appendChild(hinweis('Das Inventar liegt im Browser und hängt an der Adresse dieser Seite. '
-    + 'Wer es auf einem anderen Gerät oder unter einer anderen Adresse haben will, sichert es hier '
-    + 'als Datei und liest sie dort wieder ein.'));
+  const reihe = document.createElement('div');
+  reihe.className = 'reihe';
+  liste.forEach((e,i) => {
+    const k = document.createElement('button'); k.className = 'karte';
+    k.appendChild(miniSVG(e.entwurf, 'vorne'));
+    const bz = document.createElement('div'); bz.className = 'bez'; bz.textContent = e.name;
+    k.appendChild(bz);
+    k.title = 'Als Ausgangspunkt laden — Doppelklick löscht';
+    k.addEventListener('click', () => ausInventar(i));
+    k.addEventListener('dblclick', () => {
+      const l = invLesen(); l.splice(i,1); invSchreiben(l); regalBauen(); panelBauen();
+    });
+    reihe.appendChild(k);
+  });
+  if (!liste.length){
+    reihe.appendChild(hinweis('Noch nichts abgelegt. Bau etwas und drück unten „Ablegen" — '
+      + 'der Entwurf steht danach hier und ist dein neuer Ausgangspunkt.'));
+  }
+  box.appendChild(reihe);
+
   const leiste = document.createElement('div');
-  leiste.style.cssText = 'display:flex; gap:1.1rem; flex-wrap:wrap; align-items:center; margin-top:.5rem;';
-  const meld = document.createElement('p'); meld.className = 'hinweis'; meld.style.marginTop = '.4rem';
+  leiste.style.cssText = 'display:flex; gap:1.1rem; flex-wrap:wrap; align-items:center; margin-top:.55rem;';
+  const meld = document.createElement('p'); meld.className = 'hinweis'; meld.style.marginTop = '.35rem';
 
   const bSich = document.createElement('button');
-  bSich.className = 'knopf'; bSich.textContent = 'Inventar sichern';
+  bSich.className = 'knopf'; bSich.textContent = 'Als Datei sichern';
   bSich.disabled = !liste.length;
   bSich.addEventListener('click', async () => {
-    try { meld.textContent = await inventarSichern(); meld.style.color = ''; }
+    try { meld.textContent = await inventarSichern(); meld.style.fontWeight = ''; }
     catch(e){ meld.textContent = 'Sichern fehlgeschlagen: ' + e.message; meld.style.fontWeight = '600'; }
   });
 
   const feld = document.createElement('input');
-  feld.type = 'file'; feld.accept = '.json,application/json';
-  feld.style.display = 'none';
+  feld.type = 'file'; feld.accept = '.json,application/json'; feld.style.display = 'none';
   feld.addEventListener('change', async () => {
     const datei = feld.files && feld.files[0];
     if (!datei) return;
     try {
       const vorher = invLesen().length;
       const ersetzen = vorher > 0 && !confirm(
-        'Zum bestehenden Inventar dazulegen?\n\n' +
+        'Zum bestehenden Regal dazulegen?\n\n' +
         'OK = dazulegen (gleiche Namen werden überschrieben)\n' +
-        'Abbrechen = bestehendes Inventar ersetzen');
+        'Abbrechen = bestehendes Regal ersetzen');
       const r = await inventarEinlesen(datei, ersetzen);
-      meld.style.fontWeight = '';
-      meld.textContent = `${r.neu} neu, ${r.ersetzt} überschrieben — jetzt ${r.gesamt} im Inventar.`;
-      regalZeigen(); panelBauen();
-      document.getElementById('regalInhalt').querySelectorAll('p.hinweis').forEach(p => {
-        if (p.textContent.startsWith('Das Inventar liegt')) p.insertAdjacentElement('afterend', meld);
-      });
+      regalBauen(); panelBauen();
+      meldung(`${r.neu} neu, ${r.ersetzt} überschrieben — jetzt ${r.gesamt} im Regal.`);
     } catch(e){
       meld.textContent = 'Konnte die Datei nicht lesen: ' + e.message;
       meld.style.fontWeight = '600';
     } finally { feld.value = ''; }
   });
   const bLies = document.createElement('button');
-  bLies.className = 'knopf'; bLies.textContent = 'Inventar einlesen';
+  bLies.className = 'knopf'; bLies.textContent = 'Datei einlesen';
   bLies.addEventListener('click', () => feld.click());
 
-  leiste.append(bSich, bLies, feld);
+  const notiz = document.createElement('span');
+  notiz.className = 'hinweis';
+  notiz.textContent = 'Das Regal liegt im Browser und hängt an der Adresse dieser Seite.';
+  leiste.append(bSich, bLies, feld, notiz);
   box.append(leiste, meld);
-  document.getElementById('dlgRegal').showModal();
+}
+function regalUmschalten(zeigen){
+  const streifen = document.getElementById('regalStreifen');
+  const knopf = document.getElementById('btnRegal');
+  const offen = (zeigen === undefined) ? streifen.hidden : zeigen;
+  streifen.hidden = !offen;
+  knopf.setAttribute('aria-expanded', String(offen));
+  knopf.textContent = offen ? 'Regal schließen' : 'Regal';
+  if (offen) regalBauen();
 }
 
 /* =====================================================================
@@ -1517,7 +1587,10 @@ for (const [el2, id] of [['ansichtVorne','vorne'], ['ansichtHinten','hinten']]){
   n.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); waehlen(); } });
 }
 document.getElementById('btnSpeichern').addEventListener('click', insInventar);
-document.getElementById('btnRegal').addEventListener('click', regalZeigen);
+document.getElementById('btnRegal').addEventListener('click', () => regalUmschalten());
+document.querySelectorAll('#seiteSchalter button').forEach(b => {
+  b.addEventListener('click', () => { aktiveSeite = b.dataset.seite; panelBauen(); });
+});
 document.getElementById('btnExport').addEventListener('click', exportZeigen);
 document.getElementById('entwurfName').addEventListener('input', e => { entwurf.name = e.target.value; });
 
