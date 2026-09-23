@@ -1,0 +1,1455 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Entwurfsatelier</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Public+Sans:wght@400;500;600&display=swap">
+<style>
+  :root{
+    --paper:#E9EAEE; --raised:#F7F8FA; --sunk:#DFE1E7;
+    --ink:#1B1E24; --ink-soft:#5C636E; --ink-faint:#8C939E;
+    --line:#CDD2DB; --line-strong:#AEB5C2;
+    --accent:#4B3184; --accent-soft:#E9E4F4; --on-accent:#FFFFFF;
+    --warn:#9A5B12; --warn-soft:#F6ECDC;
+    --stoff:#FFFFFF; --naht:#1B1E24; --detail:#4B3184;
+    --display:'Bricolage Grotesque','Segoe UI',system-ui,sans-serif;
+    --body:'Public Sans','Segoe UI',system-ui,sans-serif;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --paper:#15171B; --raised:#1E2126; --sunk:#101216;
+      --ink:#E6E8EC; --ink-soft:#9BA3AE; --ink-faint:#6E7681;
+      --line:#2E333B; --line-strong:#434A55;
+      --accent:#B49BEC; --accent-soft:#2A2340; --on-accent:#16121F;
+      --warn:#E0B458; --warn-soft:#322913;
+      --stoff:#2A2E35; --naht:#E6E8EC; --detail:#B49BEC;
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#15171B; --raised:#1E2126; --sunk:#101216;
+    --ink:#E6E8EC; --ink-soft:#9BA3AE; --ink-faint:#6E7681;
+    --line:#2E333B; --line-strong:#434A55;
+    --accent:#B49BEC; --accent-soft:#2A2340; --on-accent:#16121F;
+    --warn:#E0B458; --warn-soft:#322913;
+    --stoff:#2A2E35; --naht:#E6E8EC; --detail:#B49BEC;
+  }
+
+  *{ box-sizing:border-box; }
+  html,body{ height:100%; }
+  body{
+    margin:0; background:var(--paper); color:var(--ink);
+    font-family:var(--body); font-size:15px; line-height:1.5;
+  }
+  button, input, select, textarea{ font-family:inherit; font-size:inherit; color:inherit; }
+  :focus-visible{ outline:2px solid var(--accent); outline-offset:2px; border-radius:4px; }
+
+  header{
+    display:flex; align-items:center; gap:.7rem; flex-wrap:wrap;
+    padding:.7rem 1.1rem; background:var(--raised);
+    border-bottom:1px solid var(--line-strong);
+  }
+  header h1{
+    font-family:var(--display); font-weight:700; font-size:1.05rem;
+    margin:0; letter-spacing:-.01em; margin-right:.3rem;
+  }
+  header .entwurfname{
+    border:1px solid transparent; background:transparent; color:var(--ink-soft);
+    padding:.25rem .45rem; border-radius:6px; font-size:.86rem; min-width:9rem;
+  }
+  header .entwurfname:hover, header .entwurfname:focus{
+    border-color:var(--line-strong); background:var(--paper); color:var(--ink);
+  }
+  .rechts{ margin-left:auto; display:flex; gap:.45rem; align-items:center; flex-wrap:wrap; }
+
+  .knopf{
+    background:var(--raised); border:1px solid var(--line-strong); color:var(--ink);
+    padding:.38rem .8rem; border-radius:7px; cursor:pointer; font-size:.84rem;
+  }
+  .knopf:hover{ border-color:var(--accent); color:var(--accent); }
+  .knopf.stark{ background:var(--accent); color:var(--on-accent); border-color:var(--accent); font-weight:600; }
+  .knopf.stark:hover{ color:var(--on-accent); filter:brightness(1.08); }
+  .knopf[disabled]{ opacity:.45; cursor:not-allowed; }
+  .knopf[disabled]:hover{ border-color:var(--line-strong); color:var(--ink); }
+
+  /* Schalter */
+  .schalter{
+    display:inline-flex; border:1px solid var(--line-strong);
+    border-radius:8px; overflow:hidden; background:var(--paper);
+  }
+  .schalter button{
+    background:transparent; border:none; padding:.35rem .8rem;
+    cursor:pointer; font-size:.83rem; color:var(--ink-soft);
+  }
+  .schalter button + button{ border-left:1px solid var(--line); }
+  .schalter button[aria-pressed="true"]{
+    background:var(--accent); color:var(--on-accent); font-weight:600;
+  }
+
+  .raster{ display:grid; grid-template-columns:300px 1fr; min-height:calc(100vh - 53px); }
+
+  aside{
+    background:var(--sunk); border-right:1px solid var(--line);
+    padding:.9rem .8rem 3rem; overflow-y:auto; max-height:calc(100vh - 53px);
+  }
+  .abschnitt{
+    font-family:var(--display); font-size:.68rem; font-weight:700;
+    text-transform:uppercase; letter-spacing:.09em; color:var(--ink-faint);
+    margin:1.15rem 0 .5rem; padding-bottom:.28rem; border-bottom:1px solid var(--line);
+    display:flex; align-items:center; gap:.4rem;
+  }
+  .abschnitt:first-child{ margin-top:0; }
+  .abschnitt .zusatz{ margin-left:auto; font-weight:500; text-transform:none; letter-spacing:0; font-size:.72rem; }
+
+  .chips{ display:flex; flex-wrap:wrap; gap:.3rem; }
+  .chip{
+    border:1px solid var(--line-strong); background:var(--paper);
+    padding:.3rem .65rem; border-radius:16px; cursor:pointer; font-size:.81rem;
+  }
+  .chip:hover:not([aria-pressed="true"]){ border-color:var(--accent); color:var(--accent); }
+  .chip[aria-pressed="true"]{ background:var(--accent); color:var(--on-accent); border-color:var(--accent); font-weight:600; }
+  .chip.zufuegen{ border-style:dashed; color:var(--ink-soft); }
+  .chip.zufuegen:hover{ border-style:solid; }
+
+  .slotname{ font-size:.75rem; color:var(--ink-soft); margin:.55rem 0 .25rem; }
+  .feld{ margin-bottom:.55rem; }
+  .feld label{ display:block; font-size:.75rem; color:var(--ink-soft); margin-bottom:.1rem; }
+  .feld label .wert{ float:right; color:var(--accent); font-variant-numeric:tabular-nums; }
+  .feld input[type=range]{ width:100%; accent-color:var(--accent); }
+  .feld.geteilt label::after{
+    content:'beide Ansichten'; float:right; margin-right:.5rem;
+    font-size:.66rem; color:var(--ink-faint); text-transform:uppercase; letter-spacing:.05em;
+  }
+  .feld.geteilt label .wert{ margin-left:.4rem; }
+
+  .hinweis{ font-size:.79rem; color:var(--ink-soft); }
+  .hinweis.warn{
+    background:var(--warn-soft); border-left:3px solid var(--warn);
+    padding:.45rem .6rem; border-radius:0 6px 6px 0; color:var(--ink);
+  }
+  .hinweis.tipp{
+    background:var(--accent-soft); border-left:3px solid var(--accent);
+    padding:.45rem .6rem; border-radius:0 6px 6px 0; color:var(--ink);
+  }
+
+  /* Bühne */
+  main{ padding:1.1rem; display:flex; flex-direction:column; gap:.9rem; }
+  .ansichten{
+    display:grid; grid-template-columns:1fr 1fr; gap:1rem;
+    align-items:start;
+  }
+  .ansicht{
+    background:var(--raised); border:1px solid var(--line);
+    border-radius:12px; padding:.9rem; cursor:pointer;
+    display:flex; flex-direction:column; align-items:center; gap:.5rem;
+  }
+  .ansicht[aria-current="true"]{ border-color:var(--accent); box-shadow:0 0 0 1px var(--accent); }
+  .ansicht .marke{
+    font-family:var(--display); font-size:.7rem; font-weight:700;
+    text-transform:uppercase; letter-spacing:.09em; color:var(--ink-faint);
+    align-self:flex-start;
+  }
+  .ansicht[aria-current="true"] .marke{ color:var(--accent); }
+  svg.flat{ width:100%; max-width:340px; max-height:56vh; height:auto; touch-action:none; display:block; }
+  .flat .stoff{
+    fill:var(--stoff); stroke:var(--naht); stroke-width:1.5;
+    stroke-linejoin:round; vector-effect:non-scaling-stroke;
+  }
+  .flat .detail{
+    fill:none; stroke:var(--detail); stroke-width:1.4;
+    stroke-linejoin:round; stroke-linecap:round; vector-effect:non-scaling-stroke;
+  }
+  .flat .mittellinie{
+    stroke:var(--accent); stroke-width:1; stroke-dasharray:4 4;
+    vector-effect:non-scaling-stroke; opacity:.5;
+  }
+  .flat .griff{ fill:var(--accent); cursor:grab; }
+  .flat .griff.links{ fill:var(--warn); }
+  .flat .griff:active{ cursor:grabbing; }
+  .flat .treffer{ fill:none; stroke:transparent; stroke-width:9; vector-effect:non-scaling-stroke; cursor:pointer; }
+  .flat .kanteaktiv{ fill:none; stroke:var(--accent); stroke-width:5; vector-effect:non-scaling-stroke; opacity:.45; }
+
+  .fussleiste{
+    background:var(--raised); border:1px solid var(--line); border-radius:12px;
+    padding:.6rem .9rem; display:flex; gap:.6rem; align-items:center; flex-wrap:wrap;
+  }
+  .fussleiste .hinweis{ margin-right:auto; }
+
+  dialog{
+    border:1px solid var(--line-strong); border-radius:12px; padding:0;
+    background:var(--raised); color:var(--ink);
+    max-width:min(640px,94vw); max-height:88vh; overflow:auto;
+  }
+  dialog::backdrop{ background:rgba(0,0,0,.45); }
+  dialog .inhalt{ padding:1.1rem; }
+  dialog h2{ font-family:var(--display); font-size:1.1rem; margin:0 0 .7rem; }
+  .regal{ display:grid; grid-template-columns:repeat(auto-fill,minmax(112px,1fr)); gap:.55rem; }
+  .karte{
+    background:var(--paper); border:1px solid var(--line-strong); border-radius:9px;
+    padding:.3rem; cursor:pointer; text-align:center;
+  }
+  .karte:hover{ border-color:var(--accent); }
+  .karte svg{ width:100%; height:auto; display:block; }
+  .karte .bez{ font-size:.71rem; color:var(--ink-soft); margin-top:.15rem; word-break:break-word; }
+  textarea.ausgabe{
+    width:100%; height:150px; font-family:ui-monospace,monospace; font-size:.72rem;
+    border:1px solid var(--line-strong); border-radius:6px;
+    background:var(--paper); color:var(--ink); padding:.5rem;
+  }
+
+  @media (max-width: 900px){
+    /* Ohne das streckt das Raster die erste Zeile auf volle Hoehe und
+       zwischen Buehne und Bedienfeld klafft eine leere Flaeche. */
+    .raster{ grid-template-columns:1fr; min-height:0; align-content:start; }
+    aside{ max-height:none; border-right:none; border-bottom:1px solid var(--line); order:2; }
+    main{ order:1; padding:.8rem; }
+    .ansichten{ grid-template-columns:1fr 1fr; gap:.6rem; }
+    .ansicht{ padding:.6rem; }
+    svg.flat{ max-height:38vh; }
+    header{ padding:.6rem .8rem; }
+    header h1{ font-size:.95rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Entwurfsatelier</h1>
+  <input class="entwurfname" id="entwurfName" value="Neuer Entwurf" aria-label="Name des Entwurfs">
+  <div class="rechts">
+    <div class="schalter" id="symSchalter" role="group" aria-label="Symmetrie">
+      <button data-sym="1" aria-pressed="true">Symmetrisch</button>
+      <button data-sym="0" aria-pressed="false">Asymmetrisch</button>
+    </div>
+    <button class="knopf" id="btnRegal">Inventar</button>
+    <button class="knopf" id="btnSpeichern">Ins Inventar legen</button>
+    <button class="knopf stark" id="btnExport">Export</button>
+  </div>
+</header>
+
+<div class="raster">
+  <aside id="panel"></aside>
+  <main>
+    <div class="ansichten">
+      <div class="ansicht" id="ansichtVorne" aria-current="true" tabindex="0">
+        <span class="marke">Vorne</span>
+        <svg class="flat" id="svgVorne" xmlns="http://www.w3.org/2000/svg"></svg>
+      </div>
+      <div class="ansicht" id="ansichtHinten" tabindex="0">
+        <span class="marke">Hinten</span>
+        <svg class="flat" id="svgHinten" xmlns="http://www.w3.org/2000/svg"></svg>
+      </div>
+    </div>
+    <div class="fussleiste">
+      <span class="hinweis" id="statuszeile"></span>
+      <div class="schalter" id="modusSchalter" role="group" aria-label="Bearbeiten">
+        <button data-modus="bausteine" aria-pressed="true">Bausteine</button>
+        <button data-modus="form" aria-pressed="false">Form</button>
+        <button data-modus="punkte" aria-pressed="false">Punkte</button>
+      </div>
+    </div>
+  </main>
+</div>
+
+<dialog id="dlgRegal"><div class="inhalt">
+  <h2>Inventar</h2>
+  <div id="regalInhalt"></div>
+  <p style="margin-top:1rem"><button class="knopf stark" onclick="document.getElementById('dlgRegal').close()">Schließen</button></p>
+</div></dialog>
+
+<dialog id="dlgExport"><div class="inhalt">
+  <h2>Export</h2>
+  <div id="exportInhalt"></div>
+  <p style="margin-top:1rem"><button class="knopf stark" onclick="document.getElementById('dlgExport').close()">Schließen</button></p>
+</div></dialog>
+
+<script>
+/* =====================================================================
+   ENGINE
+
+   Ein Kleidungsstueck ist eine geschlossene Kontur. Gespeichert wird sie
+   als ZWEI Ketten, die beide oben auf der Mittellinie anfangen und unten
+   auf der Mittellinie enden:
+
+       rechts:  Mitte oben -> rechte Seite hinunter -> Mitte unten
+       links:   dasselbe fuer die linke Seite (x wird beim Zeichnen negiert)
+
+   Im symmetrischen Modus wird 'links' gar nicht benutzt - beide Seiten
+   kommen aus 'rechts'. Beim Umschalten auf asymmetrisch wird 'rechts'
+   einmal nach 'links' kopiert, danach sind beide unabhaengig.
+
+   Jeder Knoten hat einen Punkt, einen Eckradius und beschreibt die Kante
+   zum naechsten Knoten. Die Ecken werden tangential verrundet.
+   ===================================================================== */
+const E = (() => {
+  const hyp = Math.hypot;
+  function at(s,t){
+    const u=1-t;
+    return [u*u*u*s[0][0]+3*u*u*t*s[1][0]+3*u*t*t*s[2][0]+t*t*t*s[3][0],
+            u*u*u*s[0][1]+3*u*u*t*s[1][1]+3*u*t*t*s[2][1]+t*t*t*s[3][1]];
+  }
+  function dir(s,t){
+    const u=1-t;
+    const dx=3*u*u*(s[1][0]-s[0][0])+6*u*t*(s[2][0]-s[1][0])+3*t*t*(s[3][0]-s[2][0]);
+    const dy=3*u*u*(s[1][1]-s[0][1])+6*u*t*(s[2][1]-s[1][1])+3*t*t*(s[3][1]-s[2][1]);
+    const L=hyp(dx,dy)||1; return [dx/L,dy/L];
+  }
+  function split(s,t){
+    const lp=(a,b)=>[a[0]+(b[0]-a[0])*t, a[1]+(b[1]-a[1])*t];
+    const ab=lp(s[0],s[1]),bc=lp(s[1],s[2]),cd=lp(s[2],s[3]);
+    const abc=lp(ab,bc),bcd=lp(bc,cd),m=lp(abc,bcd);
+    return [[s[0],ab,abc,m],[m,bcd,cd,s[3]]];
+  }
+  function len(s,n){
+    n=n||36; let L=0,prev=at(s,0);
+    for(let i=1;i<=n;i++){ const q=at(s,i/n); L+=hyp(q[0]-prev[0],q[1]-prev[1]); prev=q; }
+    return L;
+  }
+  function tAtLen(s,ziel,n){
+    n=n||110; let L=0,prev=at(s,0);
+    for(let i=1;i<=n;i++){
+      const t=i/n,q=at(s,t),d=hyp(q[0]-prev[0],q[1]-prev[1]);
+      if(L+d>=ziel) return (i-1)/n+(ziel-L)/(d||1)/n;
+      L+=d; prev=q;
+    }
+    return 1;
+  }
+  const gerade=(a,b)=>[a,[a[0]+(b[0]-a[0])/3,a[1]+(b[1]-a[1])/3],
+                         [a[0]+(b[0]-a[0])*2/3,a[1]+(b[1]-a[1])*2/3],b];
+  function bogen(a,b,w,t1,t2){
+    t1=t1??0.34; t2=t2??0.68;
+    const cx=b[0]-a[0],cy=b[1]-a[1],L=hyp(cx,cy)||1;
+    const nx=cy/L,ny=-cx/L;
+    return [a,[a[0]+cx*t1+nx*w,a[1]+cy*t1+ny*w],
+              [a[0]+cx*t2+nx*w*0.9,a[1]+cy*t2+ny*w*0.9],b];
+  }
+  function fillet(segs,radii){
+    const K=0.5523,out=[];
+    for(let i=0;i<segs.length;i++){
+      let s=segs[i];
+      const rE0=i<radii.length?(radii[i]||0):0;
+      const rS0=i>0?(radii[i-1]||0):0;
+      const L=len(s);
+      const rE=Math.min(rE0,L*0.4), rS=Math.min(rS0,L*0.4);
+      if(rE>1e-6) s=split(s,tAtLen(s,len(s)-rE))[0];
+      if(rS>1e-6) s=split(s,tAtLen(s,rS))[1];
+      out.push(s);
+      if(i<segs.length-1&&(radii[i]||0)>1e-6){
+        const nx=segs[i+1], rn=Math.min(radii[i],len(nx)*0.4);
+        const nt=rn>1e-6?split(nx,tAtLen(nx,rn))[1]:nx;
+        const P=s[3],Q=nt[0],tp=dir(s,1),tq=dir(nt,0);
+        const h=hyp(Q[0]-P[0],Q[1]-P[1])*K;
+        out.push([P,[P[0]+tp[0]*h,P[1]+tp[1]*h],[Q[0]-tq[0]*h,Q[1]-tq[1]*h],Q]);
+      }
+    }
+    return out;
+  }
+  function kanteZuSeg(A,B,k){
+    if(!k) return gerade(A,B);
+    if(k.art==='bogen') return bogen(A,B,k.w||0,k.t1,k.t2);
+    if(k.art==='kubik') return [A,k.c1,k.c2,B];
+    return gerade(A,B);
+  }
+  // Kette -> fertige, verrundete Bezierstuecke
+  function ketteSegs(kn){
+    const segs=[],radii=[];
+    for(let i=0;i<kn.length-1;i++) segs.push(kanteZuSeg(kn[i].p,kn[i+1].p,kn[i].kante));
+    for(let i=1;i<kn.length-1;i++){
+      let r=kn[i].r;
+      if(r==='auto'){ r=Math.min(len(segs[i-1]),len(segs[i]))*0.44; }
+      radii.push(r||0);
+    }
+    return fillet(segs,radii);
+  }
+  // Bezierstuecke an der Mittellinie spiegeln und in Gegenrichtung lesen
+  function spiegeln(segs){
+    return segs.slice().reverse().map(s =>
+      [[-s[3][0],s[3][1]],[-s[2][0],s[2][1]],[-s[1][0],s[1][1]],[-s[0][0],s[0][1]]]);
+  }
+  const f2=p=>p[0].toFixed(2)+','+p[1].toFixed(2);
+  function toD(segs,zu){
+    if(!segs.length) return '';
+    let d='M '+f2(segs[0][0]);
+    for(const s of segs) d+=' C '+f2(s[1])+' '+f2(s[2])+' '+f2(s[3]);
+    return d+(zu?' Z':'');
+  }
+  // Geschlossene Kontur aus rechter und linker Kette
+  function umrissSegs(rechts,links){
+    return ketteSegs(rechts).concat(spiegeln(ketteSegs(links||rechts)));
+  }
+  function umrissD(rechts,links){ return toD(umrissSegs(rechts,links),true); }
+  function kanteD(kn,i){ return toD([kanteZuSeg(kn[i].p,kn[i+1].p,kn[i].kante)],false); }
+  return {at,dir,split,len,tAtLen,gerade,bogen,fillet,kanteZuSeg,ketteSegs,
+          spiegeln,toD,umrissSegs,umrissD,kanteD};
+})();
+
+const kopie = o => JSON.parse(JSON.stringify(o));
+const rnd1  = n => Math.round(n*10)/10;
+const NS = 'http://www.w3.org/2000/svg';
+const el = (tag,attrs) => {
+  const n=document.createElementNS(NS,tag);
+  for(const k in (attrs||{})) n.setAttribute(k,attrs[k]);
+  return n;
+};
+
+/* =====================================================================
+   INVENTAR
+
+   Basis  = ein ganzes Kleidungsstueck. Legt fest, welche Steckplaetze es
+            hat und welche Regler dazugehoeren.
+   Teil   = ein austauschbarer Baustein fuer einen Steckplatz.
+   Detail = etwas, das obendrauf liegt (Tasche, Kordel, Kapuze ...).
+
+   Eigene Entwuerfe landen spaeter als weitere Basen in genau derselben
+   Liste - zwischen "meinen" und "deinen" Teilen gibt es keinen
+   Unterschied.
+   ===================================================================== */
+
+// Werte sind Entwurfsgroessen, keine Koerpermasse. Es geht ums Aussehen.
+const FORM_STANDARD = {
+  weite:26, laenge:70, schulter:23, schulterfall:3.5,
+  halsweite:10, halstiefe:7.2,
+  armwinkel:22, armlaenge:21, armweite:18, armloch:23,
+  bundweite:19, beinlaenge:99, beinweite:12, schritt:30
+};
+
+function armPunkte(f, ab){
+  const a=f.armwinkel*Math.PI/180;
+  const tx=Math.cos(a),ty=Math.sin(a),ox=-ty,oy=tx;
+  const aus=[ab[0]+f.armlaenge*tx, ab[1]+f.armlaenge*ty];
+  return {aus, ein:[aus[0]+f.armweite*ox, aus[1]+f.armweite*oy]};
+}
+
+// Saum und Innenbeinnaht der Hose. 'innen' ist der Abstand der
+// Innennaht von der Mitte - davon haengt ab, wie deutlich die beiden
+// Beine als zwei Beine lesbar sind.
+function hosenSaumBau(f, extra, rundung, gummi){
+  const innen = 3.6 + extra;
+  const aussen = innen + f.beinweite;
+  const hoehe = f.beinlaenge - f.schritt;
+  return [
+    {p:[aussen, f.beinlaenge], r:rundung,
+     kante: gummi ? {art:'bogen', w:-0.8, bez:'Gummisaum'} : {art:'gerade', bez:'Saum'}},
+    {p:[innen, f.beinlaenge], r:rundung, kante:{art:'kubik',
+      c1:[innen*0.95, f.schritt + hoehe*0.45],
+      c2:[innen*0.62, f.schritt + 5.5], bez:'Innenbein'}}
+  ];
+}
+
+const TEILE = {
+  /* ---- Steckplaetze des Oberteils ---- */
+  ausschnitt:{ bez:'Halsausschnitt', opt:{
+    rund:{bez:'Rund', bau:(f)=>[{p:[0,f.halstiefe], r:0, kante:{art:'kubik',
+      c1:[f.halsweite*0.58,f.halstiefe], c2:[f.halsweite*0.99,f.halstiefe*0.34], bez:'Halsausschnitt'}}]},
+    tief:{bez:'Tief rund', vor:f=>{f.halstiefe*=1.9;}, bau:(f)=>[{p:[0,f.halstiefe], r:0, kante:{art:'kubik',
+      c1:[f.halsweite*0.62,f.halstiefe], c2:[f.halsweite*1.0,f.halstiefe*0.30], bez:'Halsausschnitt'}}]},
+    v:{bez:'V', vor:f=>{f.halstiefe*=2.5;}, bau:(f)=>[{p:[0,f.halstiefe], r:1.4,
+      kante:{art:'gerade', bez:'V-Ausschnitt'}}]},
+    boot:{bez:'U-Boot', vor:f=>{f.halstiefe*=0.45; f.halsweite*=1.55;}, bau:(f)=>[{p:[0,f.halstiefe], r:0,
+      kante:{art:'bogen', w:-f.halstiefe*0.5, bez:'U-Boot-Ausschnitt'}}]},
+    eckig:{bez:'Eckig', vor:f=>{f.halstiefe*=1.5;}, bau:(f)=>[
+      {p:[0,f.halstiefe], r:0, kante:{art:'gerade', bez:'Ausschnitt unten'}},
+      {p:[f.halsweite,f.halstiefe], r:0.6, kante:{art:'gerade', bez:'Ausschnitt seitlich'}}]},
+    stehkragen:{bez:'Stehkragen', vor:f=>{f.halstiefe*=0.8;}, bau:(f)=>[
+      {p:[0,-5], r:0, kante:{art:'gerade', bez:'Kragenkante'}},
+      {p:[f.halsweite*0.92,-4.4], r:1.0, kante:{art:'gerade', bez:'Kragenhöhe'}}]}
+  }},
+  aermel:{ bez:'Ärmel', opt:{
+    kurz:{bez:'Kurzarm', bau:(f)=>{ const s=armPunkte(f,[f.schulter,f.schulterfall]); return [
+      {p:[f.halsweite,0], r:0.7, kante:{art:'gerade', bez:'Schulternaht'}},
+      {p:[f.schulter,f.schulterfall], r:1.0, kante:{art:'bogen', w:1.0, bez:'Ärmelkappe'}},
+      {p:s.aus, r:1.2, kante:{art:'gerade', bez:'Ärmelsaum'}},
+      {p:s.ein, r:1.2, kante:{art:'bogen', w:-0.9, bez:'Achselnaht'}}]; }},
+    halb:{bez:'Halbarm', vor:f=>{f.armlaenge=33; f.armweite=16;},
+      bau:(f)=>TEILE.aermel.opt.kurz.bau(f)},
+    lang:{bez:'Langarm', vor:f=>{f.armlaenge=54; f.armweite=12.5; f.armwinkel=30;},
+      bau:(f)=>TEILE.aermel.opt.kurz.bau(f)},
+    weit:{bez:'Weit', vor:f=>{f.armweite=29; f.armlaenge=26;},
+      bau:(f)=>{ const s=armPunkte(f,[f.schulter,f.schulterfall]); return [
+        {p:[f.halsweite,0], r:0.7, kante:{art:'gerade', bez:'Schulternaht'}},
+        {p:[f.schulter,f.schulterfall], r:1.0, kante:{art:'bogen', w:3.0, bez:'Ärmelkappe'}},
+        {p:s.aus, r:1.6, kante:{art:'gerade', bez:'Ärmelsaum'}},
+        {p:s.ein, r:1.6, kante:{art:'bogen', w:-0.6, bez:'Achselnaht'}}]; }},
+    traeger:{bez:'Träger', vor:f=>{f.halsweite*=0.62;}, bau:(f)=>[
+      {p:[f.halsweite,0], r:0.8, kante:{art:'gerade', bez:'Trägerbreite'}},
+      {p:[f.halsweite*1.7,0.6], r:1.0, kante:{art:'bogen', w:-4.5, bez:'Armausschnitt'}}]},
+    ohne:{bez:'Ärmellos', bau:(f)=>[
+      {p:[f.halsweite,0], r:0.7, kante:{art:'gerade', bez:'Schulternaht'}},
+      {p:[f.schulter,f.schulterfall], r:1.6, kante:{art:'bogen', w:-3.2, bez:'Armloch'}}]},
+    raglan:{bez:'Raglan', vor:f=>{f.armwinkel=34; f.armlaenge=27; f.armweite=17;},
+      bau:(f)=>{ const s=armPunkte(f,[f.halsweite,0]); return [
+        {p:[f.halsweite,0], r:0, kante:{art:'bogen', w:1.4, bez:'Raglannaht oben'}},
+        {p:s.aus, r:1.3, kante:{art:'gerade', bez:'Ärmelsaum'}},
+        {p:s.ein, r:1.3, kante:{art:'bogen', w:-1.4, bez:'Raglannaht unten'}}]; }}
+  }},
+  koerper:{ bez:'Körperform', opt:{
+    gerade:{bez:'Gerade', bau:(f)=>[{p:[f.weite,f.schulterfall+f.armloch], r:1.6,
+      kante:{art:'gerade', bez:'Seitennaht'}}]},
+    tailliert:{bez:'Tailliert', vor:f=>{f.saumweite=f.weite-0.5;},
+      bau:(f)=>[{p:[f.weite,f.schulterfall+f.armloch], r:1.6,
+        kante:{art:'bogen', w:-3.0, bez:'Seitennaht'}}]},
+    alinie:{bez:'A-Linie', vor:f=>{f.saumweite=f.weite+9;},
+      bau:(f)=>[{p:[f.weite,f.schulterfall+f.armloch], r:1.6,
+        kante:{art:'bogen', w:1.2, bez:'Seitennaht'}}]},
+    kastig:{bez:'Kastig', vor:f=>{f.weite+=5; f.armloch+=3;},
+      bau:(f)=>[{p:[f.weite,f.schulterfall+f.armloch], r:2.2,
+        kante:{art:'gerade', bez:'Seitennaht'}}]},
+    ballon:{bez:'Ballon', vor:f=>{f.saumweite=f.weite-3;},
+      bau:(f)=>[{p:[f.weite,f.schulterfall+f.armloch], r:1.6,
+        kante:{art:'bogen', w:4.5, bez:'Seitennaht'}}]}
+  }},
+  saum:{ bez:'Saum', opt:{
+    gerade:{bez:'Gerade', bau:(f)=>[{p:[f.saumweite??f.weite,f.laenge], r:0.4,
+      kante:{art:'gerade', bez:'Saum'}}]},
+    buendchen:{bez:'Bündchen', vor:f=>{f.saumweite=(f.saumweite??f.weite)-2.5;},
+      bau:(f)=>[{p:[f.saumweite,f.laenge], r:0.4, kante:{art:'gerade', bez:'Saum'}}]},
+    rund:{bez:'Shirttail', vor:f=>{f.saumversatz=4.5;},
+      bau:(f)=>[{p:[f.saumweite??f.weite,f.laenge], r:4.5,
+        kante:{art:'bogen', w:2.2, bez:'Rundsaum'}}]},
+    spitz:{bez:'Spitz', vor:f=>{f.saumversatz=6;},
+      bau:(f)=>[{p:[f.saumweite??f.weite,f.laenge], r:1.0,
+        kante:{art:'gerade', bez:'Spitzsaum'}}]},
+    stufe:{bez:'Stufe', bau:(f)=>[
+      {p:[f.saumweite??f.weite,f.laenge], r:1.0, kante:{art:'gerade', bez:'Saum seitlich'}},
+      {p:[(f.saumweite??f.weite)*0.6,f.laenge-5], r:1.0, kante:{art:'gerade', bez:'Saumstufe'}}]}
+  }},
+  /* ---- Steckplaetze der Hose ---- */
+  bund:{ bez:'Bund', opt:{
+    normal:{bez:'Normal', bau:(f)=>[{p:[0,0], r:0, kante:{art:'gerade', bez:'Bundkante'}}]},
+    hoch:{bez:'High Waist', vor:f=>{f.schritt+=5; f.beinlaenge+=5;},
+      bau:(f)=>[{p:[0,0], r:0, kante:{art:'gerade', bez:'Bundkante'}}]},
+    tief:{bez:'Low Rise', vor:f=>{f.schritt-=5; f.beinlaenge-=5; f.bundweite+=1.5;},
+      bau:(f)=>[{p:[0,0], r:0, kante:{art:'gerade', bez:'Bundkante'}}]},
+    gummi:{bez:'Gummibund', vor:f=>{f.bundweite-=1;},
+      bau:(f)=>[{p:[0,0], r:0, kante:{art:'bogen', w:-0.8, bez:'Gummibund'}}]}
+  }},
+  bein:{ bez:'Beinform', opt:{
+    gerade:{bez:'Straight', bau:(f)=>[
+      {p:[f.bundweite,0], r:0.8, kante:{art:'bogen', w:1.0, bez:'Seitennaht'}},
+      {p:[f.bundweite*1.12,f.schritt*0.82], r:0, kante:{art:'gerade', bez:'Außenbein'}}]},
+    baggy:{bez:'Baggy', vor:f=>{f.beinweite=19; f.bundweite+=1.5;}, bau:(f)=>[
+      {p:[f.bundweite,0], r:0.8, kante:{art:'bogen', w:1.6, bez:'Seitennaht'}},
+      {p:[f.bundweite*1.2,f.schritt*0.8], r:0, kante:{art:'bogen', w:1.6, bez:'Außenbein'}}]},
+    weit:{bez:'Wide Leg', vor:f=>{f.beinweite=24; f.bundweite+=1;}, bau:(f)=>[
+      {p:[f.bundweite,0], r:0.8, kante:{art:'bogen', w:1.2, bez:'Seitennaht'}},
+      {p:[f.bundweite*1.1,f.schritt*0.78], r:0, kante:{art:'gerade', bez:'Außenbein'}}]},
+    slim:{bez:'Slim', vor:f=>{f.beinweite=8.5;}, bau:(f)=>[
+      {p:[f.bundweite,0], r:0.8, kante:{art:'bogen', w:0.8, bez:'Seitennaht'}},
+      {p:[f.bundweite*1.05,f.schritt*0.85], r:0, kante:{art:'bogen', w:-1.2, bez:'Außenbein'}}]},
+    carrot:{bez:'Carrot', vor:f=>{f.beinweite=10;}, bau:(f)=>[
+      {p:[f.bundweite+2.5,0], r:0.8, kante:{art:'bogen', w:2.6, bez:'Seitennaht'}},
+      {p:[f.bundweite*1.18,f.schritt*0.9], r:0, kante:{art:'bogen', w:-2.0, bez:'Außenbein'}}]}
+  }},
+  hosensaum:{ bez:'Hosensaum', opt:{
+    gerade:{bez:'Gerade', bau:(f)=>hosenSaumBau(f, 0, 0.5, false)},
+    umschlag:{bez:'Umschlag', vor:f=>{f.beinlaenge-=5;},
+      bau:(f)=>hosenSaumBau(f, 0.6, 0.5, false)},
+    kurz:{bez:'Shorts', vor:f=>{f.beinlaenge=f.schritt+19; f.beinweite+=4;},
+      bau:(f)=>hosenSaumBau(f, 1.0, 0.8, false)},
+    gummi:{bez:'Gummisaum', vor:f=>{f.beinweite-=3;},
+      bau:(f)=>hosenSaumBau(f, 0, 1.6, true)}
+  }},
+  /* ---- Steckplaetze des Rocks ---- */
+  rockform:{ bez:'Rockform', opt:{
+    alinie:{bez:'A-Linie', bau:(f)=>[
+      {p:[0,0], r:0, kante:{art:'gerade', bez:'Bund'}},
+      {p:[f.bundweite,0], r:0.8, kante:{art:'bogen', w:f.bundweite*0.16, bez:'Seitennaht'}}]},
+    gerade:{bez:'Gerade', bau:(f)=>[
+      {p:[0,0], r:0, kante:{art:'gerade', bez:'Bund'}},
+      {p:[f.bundweite,0], r:0.8, kante:{art:'gerade', bez:'Seitennaht'}}]},
+    tellerrock:{bez:'Teller', bau:(f)=>[
+      {p:[0,0], r:0, kante:{art:'gerade', bez:'Bund'}},
+      {p:[f.bundweite*0.9,0], r:0.8, kante:{art:'bogen', w:f.bundweite*0.42, bez:'Seitennaht'}}]},
+    bleistift:{bez:'Bleistift', bau:(f)=>[
+      {p:[0,0], r:0, kante:{art:'gerade', bez:'Bund'}},
+      {p:[f.bundweite,0], r:0.8, kante:{art:'bogen', w:-f.bundweite*0.08, bez:'Seitennaht'}}]}
+  }},
+  rocksaum:{ bez:'Saum', opt:{
+    gerade:{bez:'Gerade', bau:(f)=>[{p:[f.rockSaumX,f.laenge], r:1.2,
+      kante:{art:'bogen', w:1.6, bez:'Saum'}}]},
+    stufe:{bez:'Stufe', bau:(f)=>[
+      {p:[f.rockSaumX,f.laenge], r:1.2, kante:{art:'gerade', bez:'Saum seitlich'}},
+      {p:[f.rockSaumX*0.55,f.laenge-6], r:1.2, kante:{art:'bogen', w:1.2, bez:'Saumstufe'}}]},
+    asym:{bez:'Schräg', bau:(f)=>[{p:[f.rockSaumX,f.laenge-9], r:1.2,
+      kante:{art:'bogen', w:2.2, bez:'Schrägsaum'}}]}
+  }}
+};
+
+// Steckplaetze, die pro Ansicht getrennt sind (geteilt:false), aendern
+// sich nur vorne oder nur hinten. Alles andere gilt fuer beide Ansichten -
+// das ist die Kopplung: Weite und Laenge stimmen immer ueberein, der
+// Halsausschnitt darf vorne und hinten verschieden sein.
+const BASEN = {
+  oberteil:{
+    bez:'Oberteil',
+    slots:[{id:'ausschnitt', geteilt:false}, {id:'aermel', geteilt:true},
+           {id:'koerper', geteilt:true}, {id:'saum', geteilt:true}],
+    standard:{ausschnitt:'rund', aermel:'kurz', koerper:'gerade', saum:'gerade'},
+    regler:[
+      {k:'weite',        bez:'Weite',           min:18, max:42, s:0.5, geteilt:true},
+      {k:'laenge',       bez:'Länge',           min:36, max:98, s:0.5, geteilt:true},
+      {k:'schulter',     bez:'Schulterbreite',  min:16, max:34, s:0.5, geteilt:true},
+      {k:'schulterfall', bez:'Schulterneigung', min:0.5,max:7,  s:0.1, geteilt:true},
+      {k:'armloch',      bez:'Armlochtiefe',    min:15, max:36, s:0.5, geteilt:true},
+      {k:'armlaenge',    bez:'Ärmellänge',      min:3,  max:62, s:0.5, geteilt:true},
+      {k:'armweite',     bez:'Ärmelweite',      min:7,  max:34, s:0.5, geteilt:true},
+      {k:'armwinkel',    bez:'Ärmelwinkel',     min:-5, max:60, s:1,   geteilt:true},
+      {k:'halsweite',    bez:'Halsweite',       min:5,  max:20, s:0.5, geteilt:false},
+      {k:'halstiefe',    bez:'Halstiefe',       min:1,  max:28, s:0.5, geteilt:false},
+      {k:'laengeExtra',  bez:'Diese Ansicht länger um', min:-10, max:18, s:0.5, geteilt:false}
+    ],
+    endpunkt:f => [0, f.laenge + (f.saumversatz||0)]
+  },
+  hose:{
+    bez:'Hose',
+    slots:[{id:'bund', geteilt:true}, {id:'bein', geteilt:true}, {id:'hosensaum', geteilt:true}],
+    standard:{bund:'normal', bein:'gerade', hosensaum:'gerade'},
+    regler:[
+      {k:'bundweite',  bez:'Bundweite',   min:12, max:32, s:0.5, geteilt:true},
+      {k:'schritt',    bez:'Schritthöhe', min:18, max:44, s:0.5, geteilt:true},
+      {k:'beinlaenge', bez:'Beinlänge',   min:40, max:120,s:0.5, geteilt:true},
+      {k:'beinweite',  bez:'Beinweite',   min:5,  max:30, s:0.5, geteilt:true},
+      {k:'laengeExtra',bez:'Diese Ansicht länger um', min:-10, max:18, s:0.5, geteilt:false}
+    ],
+    endpunkt:f => [0, f.schritt]
+  },
+  rock:{
+    bez:'Rock',
+    slots:[{id:'rockform', geteilt:true}, {id:'rocksaum', geteilt:true}],
+    standard:{rockform:'alinie', rocksaum:'gerade'},
+    regler:[
+      {k:'bundweite', bez:'Bundweite', min:12, max:32, s:0.5, geteilt:true},
+      {k:'laenge',    bez:'Länge',     min:25, max:110,s:0.5, geteilt:true},
+      {k:'laengeExtra',bez:'Diese Ansicht länger um', min:-10, max:18, s:0.5, geteilt:false}
+    ],
+    endpunkt:f => [0, f.laenge + 3]
+  }
+};
+// Die Rockform legt fest, wie weit der Saum aussen liegt
+TEILE.rockform.opt.alinie.vor     = f => { f.rockSaumX = f.bundweite*1.5;  };
+TEILE.rockform.opt.gerade.vor     = f => { f.rockSaumX = f.bundweite;      };
+TEILE.rockform.opt.tellerrock.vor = f => { f.rockSaumX = f.bundweite*2.4;  };
+TEILE.rockform.opt.bleistift.vor  = f => { f.rockSaumX = f.bundweite*0.88; };
+
+const DETAILS = {
+  kapuze:{bez:'Kapuze', basen:['oberteil'], hinter:true, mittig:true, start:[0,0], zeichne:(x,y,f)=>{
+    const b=f.halsweite*1.85, h=f.halsweite*2.5;
+    return `M ${x-b},${y+4} L ${x-b*0.94},${y-h*0.55}`
+         + ` C ${x-b*0.88},${y-h} ${x+b*0.88},${y-h} ${x+b*0.94},${y-h*0.55}`
+         + ` L ${x+b},${y+4}`;
+  }},
+  kragen:{bez:'Umlegekragen', basen:['oberteil'], hinter:false, mittig:true, start:[0,0], zeichne:(x,y,f)=>{
+    const b=f.halsweite;
+    return `M ${x-b*1.5},${y-1} L ${x-b*0.25},${y+b*0.95} L ${x},${y+b*0.35}`
+         + ` L ${x+b*0.25},${y+b*0.95} L ${x+b*1.5},${y-1}`;
+  }},
+  tasche:{bez:'Tasche', hinter:false, mittig:false, start:[13,44], zeichne:(x,y)=>
+    `M ${x-6},${y-6} L ${x+6},${y-6} L ${x+6},${y+4} L ${x},${y+9} L ${x-6},${y+4} Z`},
+  brusttasche:{bez:'Brusttasche', basen:['oberteil'], hinter:false, mittig:false, start:[12,28], zeichne:(x,y)=>
+    `M ${x-4.5},${y-4} L ${x+4.5},${y-4} L ${x+4.5},${y+4.5} L ${x-4.5},${y+4.5} Z`
+    + ` M ${x-4.5},${y-1.5} L ${x+4.5},${y-1.5}`},
+  kaenguru:{bez:'Känguru-Tasche', basen:['oberteil'], hinter:false, mittig:true, start:[0,48], zeichne:(x,y,f)=>{
+    const b=(f.saumweite??f.weite)*0.78;
+    return `M ${x-b},${y+9} L ${x-b},${y-2} L ${x-b*0.45},${y-7} L ${x+b*0.45},${y-7}`
+         + ` L ${x+b},${y-2} L ${x+b},${y+9}`;
+  }},
+  kordel:{bez:'Kordel', hinter:false, mittig:true, start:[0,11], zeichne:(x,y)=>
+    `M ${x-6.5},${y} C ${x-4},${y+7} ${x-1.6},${y+9} ${x-1.6},${y+13}`
+    + ` M ${x+6.5},${y} C ${x+4},${y+7} ${x+1.6},${y+9} ${x+1.6},${y+13}`},
+  reiss:{bez:'Reißverschluss', basen:['oberteil'], hinter:false, mittig:true, start:[0,10], zeichne:(x,y,f)=>{
+    const u=(f.laenge??70);
+    return `M ${x},${y} L ${x},${u-1} M ${x-1.3},${y} L ${x-1.3},${u-1} M ${x+1.3},${y} L ${x+1.3},${u-1}`;
+  }},
+  knopfleiste:{bez:'Knopfleiste', basen:['oberteil'], hinter:false, mittig:true, start:[0,12], zeichne:(x,y)=>{
+    let d=`M ${x-2.6},${y-5} L ${x-2.6},${y+24} M ${x+2.6},${y-5} L ${x+2.6},${y+24}`;
+    for(let i=0;i<4;i++) d+=` M ${x-1},${y+i*7} L ${x+1},${y+i*7}`;
+    return d;
+  }},
+  buendchen:{bez:'Bündchen-Linie', hinter:false, mittig:true, start:[0,64], zeichne:(x,y,f)=>{
+    const b=(f.saumweite??f.weite??20)-0.6;
+    return `M ${-b},${y} L ${b},${y}`;
+  }},
+  teilungsnaht:{bez:'Teilungsnaht', hinter:false, mittig:true, start:[0,34], zeichne:(x,y,f)=>{
+    const b=(f.weite??f.bundweite??20)+0.5;
+    return `M ${-b},${y} L ${b},${y}`;
+  }},
+  ziernaht:{bez:'Ziernaht', hinter:false, mittig:false, start:[15,5], zeichne:(x,y)=>
+    `M ${x-9},${y-2.5} L ${x+9},${y+2}`},
+  hosenschlitz:{bez:'Hosenschlitz', basen:['hose'], hinter:false, mittig:false, start:[3,1],
+    zeichne:(x,y,f)=> `M ${x},${y} L ${x},${(f.schritt??30)*0.62}`
+      + ` C ${x},${(f.schritt??30)*0.78} ${x+2.2},${(f.schritt??30)*0.82} ${x+3.4},${(f.schritt??30)*0.86}`},
+  eingriff:{bez:'Eingrifftasche', basen:['hose','rock'], hinter:false, mittig:false, start:[14,10],
+    zeichne:(x,y)=> `M ${x-5},${y-4} C ${x-1},${y+1} ${x+2},${y+5} ${x+3},${y+9}`},
+  gesaesstasche:{bez:'Gesäßtasche', basen:['hose'], hinter:false, mittig:false, start:[12,16],
+    zeichne:(x,y)=> `M ${x-5},${y-5} L ${x+5},${y-5} L ${x+5},${y+2} L ${x},${y+6} L ${x-5},${y+2} Z`},
+  bundfalte:{bez:'Bundfalte', basen:['hose'], hinter:false, mittig:false, start:[9,0],
+    zeichne:(x,y,f)=> `M ${x},${y+1} L ${x},${(f.schritt??30)*0.75}`},
+  bein_ziernaht:{bez:'Seitenstreifen', basen:['hose'], hinter:false, mittig:false, start:[20,4],
+    zeichne:(x,y,f)=> `M ${x},${y} L ${x-2},${f.beinlaenge??99}`}
+};
+
+/* =====================================================================
+   ZUSTAND
+
+   form      gilt fuer beide Ansichten (Weite, Laenge, Proportionen)
+   ansichten pro Ansicht: eigene Formwerte, eigene Bausteine je Seite,
+             eigene Details, ggf. eingefrorene Punkte
+   Bei 'symmetrie' wird 'links' staendig mit 'rechts' gleichgehalten.
+   ===================================================================== */
+function neueAnsicht(basisId){
+  const std = kopie(BASEN[basisId].standard);
+  return {
+    form:{halsweite:10, halstiefe:7.2, laengeExtra:0},
+    slots:{rechts:kopie(std), links:kopie(std)},
+    details:[],
+    punkte:null
+  };
+}
+function neuerEntwurf(basisId){
+  basisId = basisId || 'oberteil';
+  return {
+    name:'Neuer Entwurf',
+    basis:basisId,
+    symmetrie:true,
+    form:kopie(FORM_STANDARD),
+    ansichten:{ vorne:neueAnsicht(basisId), hinten:neueAnsicht(basisId) }
+  };
+}
+let entwurf = neuerEntwurf('oberteil');
+let aktiveAnsicht = 'vorne';
+let modus = 'bausteine';
+let aktiveSeite = 'rechts';   // nur im asymmetrischen Modus sichtbar
+
+// Rueckseite darf anders aussehen: hinten flacherer Ausschnitt
+entwurf.ansichten.hinten.form.halstiefe = 2.4;
+entwurf.ansichten.hinten.form.laengeExtra = 1.5;
+
+function formFuer(ansichtId){
+  const a = entwurf.ansichten[ansichtId];
+  const f = Object.assign({}, entwurf.form, a.form);
+  f.laenge = (f.laenge ?? 0) + (f.laengeExtra || 0);
+  f.beinlaenge = (f.beinlaenge ?? 0) + (f.laengeExtra || 0);
+  return f;
+}
+// Eine Kette (eine Seite) aus Basis + Bausteinen + Formwerten bauen
+function kette(ansichtId, seite){
+  const B = BASEN[entwurf.basis];
+  const a = entwurf.ansichten[ansichtId];
+  const wahl = a.slots[entwurf.symmetrie ? 'rechts' : seite];
+  const f = formFuer(ansichtId);
+  for (const s of B.slots){
+    const o = TEILE[s.id].opt[wahl[s.id]];
+    if (o && o.vor) o.vor(f);
+  }
+  let kn = [];
+  for (const s of B.slots){
+    const o = TEILE[s.id].opt[wahl[s.id]];
+    if (o) kn = kn.concat(o.bau(f));
+  }
+  kn.push({p:B.endpunkt(f), r:0});
+  return kn;
+}
+// Glatte Kurve durch eine reine Punktkette (Punkte-Modus)
+function glattD(pts, eckig, offen){
+  const n = pts.length;
+  const tang = i => {
+    if (i===0 || i===n-1){
+      if (Math.abs(pts[i][0]) < 0.01){
+        const nb = pts[i===0?1:n-2];
+        const l = Math.hypot(nb[0]-pts[i][0], nb[1]-pts[i][1])/3;
+        return [i===0?l:-l, 0];
+      }
+      return null;
+    }
+    if (eckig[i]) return null;
+    return [(pts[i+1][0]-pts[i-1][0])/6, (pts[i+1][1]-pts[i-1][1])/6];
+  };
+  let d = offen ? '' : `M ${pts[0][0].toFixed(2)},${pts[0][1].toFixed(2)}`;
+  for (let i=0;i<n-1;i++){
+    const A=pts[i], B=pts[i+1], tA=tang(i), tB=tang(i+1);
+    const c1 = tA ? [A[0]+tA[0],A[1]+tA[1]] : [A[0]+(B[0]-A[0])/3, A[1]+(B[1]-A[1])/3];
+    const c2 = tB ? [B[0]-tB[0],B[1]-tB[1]] : [B[0]-(B[0]-A[0])/3, B[1]-(B[1]-A[1])/3];
+    d += ` C ${c1[0].toFixed(2)},${c1[1].toFixed(2)} ${c2[0].toFixed(2)},${c2[1].toFixed(2)}`
+       + ` ${B[0].toFixed(2)},${B[1].toFixed(2)}`;
+  }
+  return d;
+}
+function punkteD(p, symmetrie){
+  const R = p.rechts, L = symmetrie ? p.rechts : p.links;
+  const eR = p.eckig.rechts, eL = symmetrie ? p.eckig.rechts : p.eckig.links;
+  const rechtsD = glattD(R, eR, false);
+  const gespiegelt = L.map(q => [-q[0], q[1]]).reverse();
+  const eGesp = eL.slice().reverse();
+  return rechtsD + glattD(gespiegelt, eGesp, true) + ' Z';
+}
+// Kontur der Ansicht - egal ob parametrisch oder eingefroren
+function umrissVon(ansichtId){
+  const a = entwurf.ansichten[ansichtId];
+  if (a.punkte) return punkteD(a.punkte, entwurf.symmetrie);
+  const r = kette(ansichtId,'rechts');
+  if (entwurf.symmetrie) return E.umrissD(r, null);
+  // Beide Seiten fangen oben auf der Mittellinie an und enden unten dort.
+  // Waehlen sie unterschiedlich tiefe Ausschnitte, klaffte die Kontur an
+  // diesen beiden Punkten auf. Darum gibt die rechte Seite sie vor.
+  const l = kette(ansichtId,'links');
+  l[0] = Object.assign({}, l[0], {p:r[0].p.slice()});
+  l[l.length-1] = Object.assign({}, l[l.length-1], {p:r[r.length-1].p.slice()});
+  return E.umrissD(r, l);
+}
+
+/* =====================================================================
+   PUNKTE EINFRIEREN
+   Wer frei an Punkten ziehen will, braucht eine Punktkette statt der
+   parametrischen Bausteine. Der fertige Umriss wird dafuer abgetastet
+   und mit Douglas-Peucker auf die Punkte eingedampft, die die Form
+   tragen - gleichmaessige Abstaende wuerden kurze, stark gekruemmte
+   Stellen wie den Halsausschnitt verschlucken.
+   ===================================================================== */
+function dichtAbtasten(segs, anzahl){
+  const laengen = segs.map(s => E.len(s));
+  const ges = laengen.reduce((a,b)=>a+b, 0) || 1;
+  const pts = [];
+  for (let i=0;i<=anzahl;i++){
+    let rest = ges*i/anzahl, j = 0;
+    while (j < segs.length-1 && rest > laengen[j]){ rest -= laengen[j]; j++; }
+    pts.push(E.at(segs[j], E.tAtLen(segs[j], Math.min(rest, laengen[j]))));
+  }
+  return pts;
+}
+function abstandZurSehne(p,a,b){
+  const dx=b[0]-a[0], dy=b[1]-a[1], L2=dx*dx+dy*dy;
+  if (L2 < 1e-9) return Math.hypot(p[0]-a[0], p[1]-a[1]);
+  let t = ((p[0]-a[0])*dx + (p[1]-a[1])*dy)/L2;
+  t = Math.max(0, Math.min(1,t));
+  return Math.hypot(p[0]-(a[0]+dx*t), p[1]-(a[1]+dy*t));
+}
+function vereinfachen(pts, tol){
+  if (pts.length < 3) return pts.slice();
+  let maxD = 0, idx = 0;
+  for (let i=1;i<pts.length-1;i++){
+    const d = abstandZurSehne(pts[i], pts[0], pts[pts.length-1]);
+    if (d > maxD){ maxD = d; idx = i; }
+  }
+  if (maxD <= tol) return [pts[0], pts[pts.length-1]];
+  return vereinfachen(pts.slice(0,idx+1), tol).slice(0,-1)
+    .concat(vereinfachen(pts.slice(idx), tol));
+}
+function abtasten(segs, ziel){
+  const dicht = dichtAbtasten(segs, 360);
+  let lo = 0.01, hi = 6;
+  for (let i=0;i<22;i++){
+    const m = (lo+hi)/2;
+    if (vereinfachen(dicht, m).length > ziel) lo = m; else hi = m;
+  }
+  const pts = vereinfachen(dicht, hi).map(p => [rnd1(p[0]), rnd1(p[1])]);
+  pts[0][0] = 0; pts[pts.length-1][0] = 0;
+  return pts;
+}
+function eckenFinden(pts, grad){
+  const grenze = (grad ?? 24)*Math.PI/180;
+  return pts.map((p,i) => {
+    if (i===0 || i===pts.length-1) return true;
+    const a=[p[0]-pts[i-1][0], p[1]-pts[i-1][1]];
+    const b=[pts[i+1][0]-p[0], pts[i+1][1]-p[1]];
+    const la=Math.hypot(a[0],a[1])||1, lb=Math.hypot(b[0],b[1])||1;
+    const cos=Math.min(1,Math.max(-1,(a[0]*b[0]+a[1]*b[1])/(la*lb)));
+    return Math.acos(cos) > grenze;
+  });
+}
+function einfrieren(id){
+  const a = entwurf.ansichten[id];
+  if (a.punkte) return;
+  const r = abtasten(E.ketteSegs(kette(id,'rechts')), 20);
+  const l = entwurf.symmetrie ? kopie(r) : abtasten(E.ketteSegs(kette(id,'links')), 20);
+  a.punkte = {rechts:r, links:l, eckig:{rechts:eckenFinden(r), links:eckenFinden(l)}};
+}
+function auftauen(id){ entwurf.ansichten[id].punkte = null; }
+
+/* =====================================================================
+   ZEICHNEN
+   ===================================================================== */
+function detailPfade(id, hinter){
+  const a = entwurf.ansichten[id], f = formFuer(id);
+  const B = BASEN[entwurf.basis];
+  const wahl = a.slots.rechts;
+  const f2 = Object.assign({}, f);
+  for (const s of B.slots){ const o = TEILE[s.id].opt[wahl[s.id]]; if (o && o.vor) o.vor(f2); }
+  return a.details
+    .map((d,i) => ({d, i, def:DETAILS[d.typ]}))
+    .filter(x => x.def && !!x.def.hinter === !!hinter)
+    .map(x => ({i:x.i, d:x.def.zeichne(x.d.p[0], x.d.p[1], f2), p:x.d.p, def:x.def}));
+}
+function zeichneAnsicht(id){
+  const svg = document.getElementById(id === 'vorne' ? 'svgVorne' : 'svgHinten');
+  const a = entwurf.ansichten[id];
+  svg.innerHTML = '';
+  const d = umrissVon(id);
+
+  for (const x of detailPfade(id, true)) svg.appendChild(el('path', {d:x.d, class:'detail'}));
+  svg.appendChild(el('path', {d, class:'stoff'}));
+  for (const x of detailPfade(id, false)) svg.appendChild(el('path', {d:x.d, class:'detail'}));
+
+  // Zuschnitt auf den Inhalt, erst nachdem alles im Dokument steht
+  let bb;
+  try { bb = svg.getBBox(); } catch(e){ bb = null; }
+  if (!bb || !isFinite(bb.width) || bb.width < 1) bb = {x:-45, y:-8, width:90, height:90};
+  const rand = Math.max(4, bb.width*0.06);
+  svg.setAttribute('viewBox',
+    `${bb.x-rand} ${bb.y-rand} ${bb.width+2*rand} ${bb.height+2*rand}`);
+  const maszstab = (bb.width + 2*rand) / 100;
+
+  if (!entwurf.symmetrie){
+    svg.appendChild(el('line', {x1:0, y1:bb.y-rand, x2:0, y2:bb.y+bb.height+rand, class:'mittellinie'}));
+  }
+
+  if (id === aktiveAnsicht && modus === 'punkte' && a.punkte){
+    const r = Math.max(0.8, maszstab*1.1);
+    const seiten = entwurf.symmetrie ? ['rechts'] : ['rechts','links'];
+    for (const seite of seiten){
+      a.punkte[seite].forEach((p,i) => {
+        const c = el('circle', {cx:(seite==='links'?-p[0]:p[0]), cy:p[1], r,
+                                class:'griff' + (seite==='links'?' links':'')});
+        if (!a.punkte.eckig[seite][i]) c.setAttribute('fill-opacity','0.45');
+        c.addEventListener('pointerdown', ev => punktZiehen(ev, svg, id, seite, i));
+        c.addEventListener('dblclick', ev => {
+          ev.preventDefault();
+          a.punkte.eckig[seite][i] = !a.punkte.eckig[seite][i];
+          if (entwurf.symmetrie) a.punkte.eckig.links = a.punkte.eckig.rechts.slice();
+          allesZeichnen();
+        });
+        svg.appendChild(c);
+      });
+    }
+  }
+  if (id === aktiveAnsicht && modus === 'bausteine'){
+    const r = Math.max(0.8, maszstab*1.0);
+    for (const x of detailPfade(id, false).concat(detailPfade(id, true))){
+      const c = el('circle', {cx:x.p[0], cy:x.p[1], r, class:'griff'});
+      c.addEventListener('pointerdown', ev => detailZiehen(ev, svg, id, x.i));
+      c.addEventListener('dblclick', () => {
+        a.details.splice(x.i,1); allesZeichnen(); panelBauen();
+      });
+      svg.appendChild(c);
+    }
+  }
+}
+function svgPunkt(svg, e){
+  const p = svg.createSVGPoint();
+  p.x = e.clientX; p.y = e.clientY;
+  return p.matrixTransform(svg.getScreenCTM().inverse());
+}
+function ziehGeruest(ev, svg, beiBewegung){
+  ev.preventDefault(); ev.stopPropagation();
+  try { svg.setPointerCapture(ev.pointerId); } catch(e){}
+  const zieh = e2 => beiBewegung(svgPunkt(svg, e2));
+  const stop = () => svg.removeEventListener('pointermove', zieh);
+  svg.addEventListener('pointermove', zieh);
+  svg.addEventListener('pointerup', stop, {once:true});
+  svg.addEventListener('pointercancel', stop, {once:true});
+}
+function punktZiehen(ev, svg, id, seite, i){
+  const a = entwurf.ansichten[id];
+  ziehGeruest(ev, svg, q => {
+    const liste = a.punkte[seite];
+    const fest = (i === 0 || i === liste.length-1);
+    const x = fest ? 0 : Math.max(0, rnd1(seite === 'links' ? -q.x : q.x));
+    liste[i] = [x, rnd1(q.y)];
+    if (entwurf.symmetrie) a.punkte.links = kopie(a.punkte.rechts);
+    zeichneAnsicht(id);
+  });
+}
+function detailZiehen(ev, svg, id, i){
+  const a = entwurf.ansichten[id];
+  const def = DETAILS[a.details[i].typ];
+  ziehGeruest(ev, svg, q => {
+    a.details[i].p = [def.mittig ? 0 : rnd1(q.x), rnd1(q.y)];
+    zeichneAnsicht(id);
+  });
+}
+function allesZeichnen(){
+  zeichneAnsicht('vorne');
+  zeichneAnsicht('hinten');
+  document.getElementById('ansichtVorne').setAttribute('aria-current', String(aktiveAnsicht==='vorne'));
+  document.getElementById('ansichtHinten').setAttribute('aria-current', String(aktiveAnsicht==='hinten'));
+  statusSetzen();
+}
+function statusSetzen(){
+  const a = entwurf.ansichten[aktiveAnsicht];
+  const teile = [];
+  teile.push('Bearbeitet: ' + (aktiveAnsicht==='vorne'?'Vorderansicht':'Rückansicht'));
+  if (!entwurf.symmetrie) teile.push('asymmetrisch — linke und rechte Seite getrennt');
+  if (a.punkte) teile.push('Punkte eingefroren');
+  document.getElementById('statuszeile').textContent = teile.join(' · ');
+}
+// Vorschaubild fuers Inventar
+function miniSVG(e, ansichtId){
+  const sicherung = entwurf, sicherA = aktiveAnsicht;
+  entwurf = e;
+  try {
+    const d = umrissVon(ansichtId || 'vorne');
+    const svg = el('svg', {xmlns:NS, viewBox:'-50 -12 100 110', preserveAspectRatio:'xMidYMid meet'});
+    svg.appendChild(el('path', {d, fill:'var(--stoff)', stroke:'var(--naht)',
+      'stroke-width':1.4, 'stroke-linejoin':'round', 'vector-effect':'non-scaling-stroke'}));
+    return svg;
+  } finally { entwurf = sicherung; aktiveAnsicht = sicherA; }
+}
+
+/* =====================================================================
+   INVENTAR (eigene Entwuerfe)
+   Ein gespeicherter Entwurf ist im Inventar nichts anderes als eine
+   Basis: du startest von ihm und veraenderst weiter.
+   ===================================================================== */
+const INV_KEY = 'atelier.inventar.v1';
+const invLesen = () => { try { return JSON.parse(localStorage.getItem(INV_KEY))||[]; } catch(e){ return []; } };
+const invSchreiben = x => { try { localStorage.setItem(INV_KEY, JSON.stringify(x)); } catch(e){} };
+
+function insInventar(){
+  const liste = invLesen();
+  const name = (document.getElementById('entwurfName').value || '').trim() || ('Entwurf ' + (liste.length+1));
+  entwurf.name = name;
+  const vorhanden = liste.findIndex(x => x.name === name);
+  const eintrag = {name, zeit:Date.now(), entwurf:kopie(entwurf)};
+  if (vorhanden >= 0) liste[vorhanden] = eintrag; else liste.push(eintrag);
+  invSchreiben(liste);
+  panelBauen();
+  meldung(vorhanden >= 0 ? `„${name}" im Inventar aktualisiert` : `„${name}" liegt jetzt im Inventar`);
+}
+function ausInventar(i){
+  const liste = invLesen();
+  if (!liste[i]) return;
+  entwurf = kopie(liste[i].entwurf);
+  // aeltere Staende vertraeglich machen
+  entwurf.symmetrie = entwurf.symmetrie !== false;
+  for (const k of ['vorne','hinten'])
+    if (!entwurf.ansichten[k]) entwurf.ansichten[k] = neueAnsicht(entwurf.basis);
+  document.getElementById('entwurfName').value = entwurf.name || liste[i].name;
+  symSchalterSetzen();
+  panelBauen(); allesZeichnen();
+  meldung(`„${liste[i].name}" geladen`);
+}
+function meldung(text){
+  const z = document.getElementById('statuszeile');
+  z.textContent = text;
+  clearTimeout(meldung.t);
+  meldung.t = setTimeout(statusSetzen, 2600);
+}
+
+/* =====================================================================
+   BEDIENFELD
+   ===================================================================== */
+function abschnitt(text, zusatz){
+  const h = document.createElement('div'); h.className = 'abschnitt';
+  h.appendChild(document.createTextNode(text));
+  if (zusatz){ const s = document.createElement('span'); s.className='zusatz'; s.textContent=zusatz; h.appendChild(s); }
+  return h;
+}
+function chipReihe(optionen, aktiv, beiWahl, klasse){
+  const box = document.createElement('div'); box.className = 'chips';
+  optionen.forEach(o => {
+    const b = document.createElement('button');
+    b.className = 'chip' + (klasse ? ' '+klasse : '');
+    b.textContent = o.bez;
+    b.setAttribute('aria-pressed', String(o.id === aktiv));
+    b.addEventListener('click', () => beiWahl(o.id));
+    box.appendChild(b);
+  });
+  return box;
+}
+function reglerFeld(bez, wert, min, max, schritt, geteilt, beiAenderung){
+  const f = document.createElement('div');
+  f.className = 'feld' + (geteilt ? ' geteilt' : '');
+  const l = document.createElement('label');
+  const w = document.createElement('span'); w.className='wert'; w.textContent = wert;
+  l.appendChild(document.createTextNode(bez)); l.appendChild(w);
+  const i = document.createElement('input');
+  Object.assign(i, {type:'range', min, max, step:schritt, value:wert});
+  i.addEventListener('input', () => { w.textContent = i.value; beiAenderung(parseFloat(i.value)); });
+  f.append(l, i);
+  return f;
+}
+function hinweis(text, art){
+  const p = document.createElement('p');
+  p.className = 'hinweis' + (art ? ' '+art : '');
+  p.style.margin = '.4rem 0';
+  p.textContent = text;
+  return p;
+}
+
+function panelBauen(){
+  const panel = document.getElementById('panel');
+  panel.innerHTML = '';
+  const a = entwurf.ansichten[aktiveAnsicht];
+  const B = BASEN[entwurf.basis];
+
+  if (modus === 'bausteine'){
+    panel.appendChild(abschnitt('Basis'));
+    const eigene = invLesen();
+    panel.appendChild(chipReihe(
+      Object.keys(BASEN).map(id => ({id, bez:BASEN[id].bez})),
+      entwurf.basis,
+      id => {
+        if (id === entwurf.basis) return;
+        const name = document.getElementById('entwurfName').value;
+        const alteDetails = {vorne:entwurf.ansichten.vorne.details, hinten:entwurf.ansichten.hinten.details};
+        entwurf = neuerEntwurf(id);
+        for (const v of ['vorne','hinten'])
+          entwurf.ansichten[v].details = alteDetails[v].filter(d => {
+            const def = DETAILS[d.typ];
+            return def && (!def.basen || def.basen.includes(id));
+          });
+        entwurf.ansichten.hinten.form.halstiefe = 2.4;
+        entwurf.ansichten.hinten.form.laengeExtra = 1.5;
+        document.getElementById('entwurfName').value = name;
+        symSchalterSetzen(); panelBauen(); allesZeichnen();
+      }));
+    if (eigene.length){
+      panel.appendChild(abschnitt('Eigene Basen', eigene.length + ' im Inventar'));
+      panel.appendChild(chipReihe(
+        eigene.map((e,i) => ({id:i, bez:e.name})), null, i => ausInventar(i), 'zufuegen'));
+    }
+
+    if (a.punkte){
+      panel.appendChild(abschnitt('Bausteine'));
+      panel.appendChild(hinweis('Diese Ansicht ist auf Punkte eingefroren. Solange das so ist, '
+        + 'wirken Bausteine und Form nicht. Im Reiter „Punkte" kannst du sie wieder auflösen.', 'warn'));
+    } else {
+      if (!entwurf.symmetrie){
+        panel.appendChild(abschnitt('Seite'));
+        panel.appendChild(chipReihe(
+          [{id:'rechts', bez:'Rechte Seite'}, {id:'links', bez:'Linke Seite'}],
+          aktiveSeite, s => { aktiveSeite = s; panelBauen(); }));
+        panel.appendChild(hinweis('Die Bausteine gelten nur für die gewählte Seite. '
+          + 'Die Regler unter „Form" gelten weiter für das ganze Teil.'));
+      }
+      for (const s of B.slots){
+        const def = TEILE[s.id];
+        panel.appendChild(abschnitt(def.bez, s.geteilt ? 'beide Ansichten' : 'nur ' + (aktiveAnsicht==='vorne'?'vorne':'hinten')));
+        const seite = entwurf.symmetrie ? 'rechts' : aktiveSeite;
+        panel.appendChild(chipReihe(
+          Object.keys(def.opt).map(id => ({id, bez:def.opt[id].bez})),
+          a.slots[seite][s.id],
+          id => {
+            const ziele = s.geteilt ? ['vorne','hinten'] : [aktiveAnsicht];
+            for (const z of ziele){
+              const av = entwurf.ansichten[z];
+              av.slots[seite][s.id] = id;
+              if (entwurf.symmetrie) av.slots.links[s.id] = av.slots.rechts[s.id];
+            }
+            panelBauen(); allesZeichnen();
+          }));
+      }
+    }
+
+    panel.appendChild(abschnitt('Details', 'nur ' + (aktiveAnsicht==='vorne'?'vorne':'hinten')));
+    const box = document.createElement('div'); box.className = 'chips';
+    for (const t in DETAILS){
+      const def = DETAILS[t];
+      if (def.basen && !def.basen.includes(entwurf.basis)) continue;
+      const b = document.createElement('button');
+      b.className = 'chip zufuegen'; b.textContent = '+ ' + def.bez;
+      b.addEventListener('click', () => {
+        a.details.push({typ:t, p:DETAILS[t].start.slice()});
+        panelBauen(); allesZeichnen();
+      });
+      box.appendChild(b);
+    }
+    panel.appendChild(box);
+    if (a.details.length){
+      panel.appendChild(abschnitt('Liegt drauf', a.details.length + ''));
+      a.details.forEach((d,i) => {
+        const z = document.createElement('div');
+        z.style.cssText = 'display:flex; align-items:center; gap:.4rem; margin-bottom:.25rem; font-size:.81rem;';
+        const n = document.createElement('span'); n.textContent = DETAILS[d.typ].bez; n.style.flex = '1';
+        const w = document.createElement('button');
+        w.className = 'knopf'; w.style.padding = '.1rem .5rem'; w.textContent = 'weg';
+        w.addEventListener('click', () => { a.details.splice(i,1); panelBauen(); allesZeichnen(); });
+        z.append(n, w); panel.appendChild(z);
+      });
+      panel.appendChild(hinweis('Den lila Punkt in der Zeichnung ziehen verschiebt ein Detail.'));
+    }
+  }
+
+  if (modus === 'form'){
+    if (a.punkte){
+      panel.appendChild(abschnitt('Form'));
+      panel.appendChild(hinweis('Diese Ansicht ist auf Punkte eingefroren — die Regler wirken erst wieder, '
+        + 'wenn du die Punkte im Reiter „Punkte" auflöst.', 'warn'));
+    } else {
+      panel.appendChild(abschnitt('Form'));
+      panel.appendChild(hinweis('Werte mit dem Vermerk „beide Ansichten" halten Vorder- und Rückseite '
+        + 'zusammen. Alles andere gilt nur für die gerade bearbeitete Ansicht.', 'tipp'));
+      for (const r of B.regler){
+        const quelle = r.geteilt ? entwurf.form : a.form;
+        const wert = quelle[r.k] ?? FORM_STANDARD[r.k] ?? 0;
+        panel.appendChild(reglerFeld(r.bez, wert, r.min, r.max, r.s, r.geteilt, val => {
+          if (r.geteilt) entwurf.form[r.k] = val; else a.form[r.k] = val;
+          allesZeichnen();
+        }));
+      }
+    }
+  }
+
+  if (modus === 'punkte'){
+    panel.appendChild(abschnitt('Punkte', aktiveAnsicht === 'vorne' ? 'Vorderansicht' : 'Rückansicht'));
+    if (!a.punkte){
+      panel.appendChild(hinweis('Zum freien Ziehen wird die aktuelle Form in eine Punktkette umgewandelt. '
+        + 'Danach wirken Bausteine und Regler auf diese Ansicht nicht mehr — bis du die Punkte wieder auflöst.'));
+      const b = document.createElement('button');
+      b.className = 'knopf stark'; b.textContent = 'Punkte erzeugen';
+      b.addEventListener('click', () => { einfrieren(aktiveAnsicht); panelBauen(); allesZeichnen(); });
+      panel.appendChild(b);
+    } else {
+      panel.appendChild(hinweis('Punkt ziehen ändert die Form. Doppelklick auf einen Punkt schaltet zwischen '
+        + 'Ecke (voll) und weichem Übergang (blass) um.', 'tipp'));
+      if (!entwurf.symmetrie)
+        panel.appendChild(hinweis('Lila = rechte Seite, orange = linke Seite. Beide sind unabhängig.'));
+      panel.appendChild(hinweis('Punkte rechts: ' + a.punkte.rechts.length
+        + (entwurf.symmetrie ? '' : ' · links: ' + a.punkte.links.length)));
+      const b = document.createElement('button');
+      b.className = 'knopf'; b.textContent = 'Punkte auflösen, zurück zu den Bausteinen';
+      b.addEventListener('click', () => {
+        auftauen(aktiveAnsicht); panelBauen(); allesZeichnen();
+        meldung('Punkte verworfen — die Bausteine wirken wieder');
+      });
+      panel.appendChild(b);
+    }
+  }
+}
+
+/* =====================================================================
+   EXPORT
+   ===================================================================== */
+let downloadsCap = null;
+if (window.claude && window.claude.use) window.claude.use('downloads').then(c => { downloadsCap = c; });
+async function ausgeben(blob, name){
+  if (downloadsCap){
+    try { await downloadsCap.save({filename:name, data:blob}); return 'gespeichert'; }
+    catch(e){ if (e && e.code === 'declined') return 'abgebrochen'; }
+  }
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = name; a.click();
+  URL.revokeObjectURL(a.href);
+  return 'gespeichert';
+}
+function exportSVG(){
+  const teile = [];
+  let versatz = 0;
+  for (const id of ['vorne','hinten']){
+    const quelle = document.getElementById(id==='vorne'?'svgVorne':'svgHinten');
+    const vb = (quelle.getAttribute('viewBox')||'0 0 100 100').split(/\s+/).map(Number);
+    const inhalt = Array.from(quelle.querySelectorAll('path'))
+      .map(p => `<path d="${p.getAttribute('d')}" fill="none" stroke="#111111" stroke-width="0.6"
+                  stroke-linejoin="round"/>`).join('\n      ');
+    teile.push(`  <g transform="translate(${versatz - vb[0]},${-vb[1]})">
+      <text x="${vb[0]+4}" y="${vb[1]+8}" font-family="sans-serif" font-size="5" fill="#666">${id==='vorne'?'Vorne':'Hinten'}</text>
+      ${inhalt}
+    </g>`);
+    versatz += vb[2] + 10;
+  }
+  const hoehe = Math.max(...['vorne','hinten'].map(id => {
+    const vb = (document.getElementById(id==='vorne'?'svgVorne':'svgHinten')
+      .getAttribute('viewBox')||'0 0 100 100').split(/\s+/).map(Number);
+    return vb[3];
+  }));
+  return `<?xml version="1.0" encoding="UTF-8"?>\n`
+    + `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${versatz} ${hoehe}" width="${versatz}mm" height="${hoehe}mm">\n`
+    + teile.join('\n') + '\n</svg>\n';
+}
+function exportZeigen(){
+  const box = document.getElementById('exportInhalt');
+  box.innerHTML = '';
+  box.appendChild(hinweis('Das SVG enthält Vorder- und Rückansicht nebeneinander und lässt sich in '
+    + 'Inkscape öffnen. Schick es mir, wenn wir daraus in Seamly2D ein Schnittmuster bauen — '
+    + 'dann muss ich dir den Entwurf nicht erst erklären lassen.', 'tipp'));
+  const reihe = document.createElement('div');
+  reihe.style.cssText = 'display:flex; gap:.45rem; flex-wrap:wrap; margin:.8rem 0;';
+  const meld = document.createElement('p'); meld.className = 'hinweis';
+  const name = (entwurf.name || 'entwurf').replace(/[^\w\-]+/g,'_').toLowerCase();
+
+  const bSVG = document.createElement('button');
+  bSVG.className = 'knopf stark'; bSVG.textContent = 'SVG';
+  bSVG.addEventListener('click', async () => {
+    meld.textContent = await ausgeben(new Blob([exportSVG()], {type:'image/svg+xml'}), name+'.svg');
+  });
+  const bPNG = document.createElement('button');
+  bPNG.className = 'knopf'; bPNG.textContent = 'PNG';
+  bPNG.addEventListener('click', () => {
+    const text = exportSVG();
+    const vb = text.match(/viewBox="0 0 ([\d.]+) ([\d.]+)"/);
+    const url = URL.createObjectURL(new Blob([text], {type:'image/svg+xml;charset=utf-8'}));
+    const img = new Image();
+    img.onload = async () => {
+      const c = document.createElement('canvas');
+      c.width = 1600; c.height = Math.round(1600 * parseFloat(vb[2]) / parseFloat(vb[1]));
+      const ctx = c.getContext('2d');
+      ctx.fillStyle = '#ffffff'; ctx.fillRect(0,0,c.width,c.height);
+      ctx.drawImage(img, 0, 0, c.width, c.height);
+      c.toBlob(async b => { meld.textContent = await ausgeben(b, name+'.png'); });
+      URL.revokeObjectURL(url);
+    };
+    img.onerror = () => { meld.textContent = 'PNG konnte nicht erzeugt werden.'; };
+    img.src = url;
+  });
+  reihe.append(bSVG, bPNG);
+  box.append(reihe, meld);
+  const t = document.createElement('textarea');
+  t.className = 'ausgabe'; t.readOnly = true; t.value = exportSVG();
+  box.appendChild(abschnitt('Das steckt drin'));
+  box.appendChild(t);
+  document.getElementById('dlgExport').showModal();
+}
+
+function inventarSichern(){
+  const liste = invLesen();
+  const inhalt = JSON.stringify({art:'entwurfsatelier-inventar', fassung:1,
+                                 gesichert:new Date().toISOString(), entwuerfe:liste}, null, 1);
+  const datum = new Date().toISOString().slice(0,10);
+  return ausgeben(new Blob([inhalt], {type:'application/json'}), `inventar-${datum}.json`);
+}
+async function inventarEinlesen(datei, ersetzen){
+  const text = await datei.text();
+  const daten = JSON.parse(text);
+  const herein = Array.isArray(daten) ? daten : daten.entwuerfe;
+  if (!Array.isArray(herein)) throw new Error('Das ist keine Inventar-Datei.');
+  const geprueft = herein.filter(e => e && typeof e.name === 'string' && e.entwurf && e.entwurf.ansichten);
+  if (!geprueft.length) throw new Error('Keine brauchbaren Entwürfe darin.');
+  let liste = ersetzen ? [] : invLesen();
+  let neu = 0, ersetzt = 0;
+  for (const e of geprueft){
+    const i = liste.findIndex(x => x.name === e.name);
+    if (i >= 0){ liste[i] = e; ersetzt++; } else { liste.push(e); neu++; }
+  }
+  invSchreiben(liste);
+  return {neu, ersetzt, gesamt:liste.length};
+}
+
+function regalZeigen(){
+  const box = document.getElementById('regalInhalt');
+  const liste = invLesen();
+  box.innerHTML = '';
+  if (!liste.length){
+    box.appendChild(hinweis('Noch nichts im Inventar. Bau etwas und drück oben „Ins Inventar legen" — '
+      + 'der Entwurf steht danach als eigene Basis in der Bausteinliste, von der aus du neu starten kannst.'));
+  } else {
+    const g = document.createElement('div'); g.className = 'regal';
+    liste.forEach((e,i) => {
+      const k = document.createElement('button'); k.className = 'karte';
+      k.appendChild(miniSVG(e.entwurf, 'vorne'));
+      const b = document.createElement('div'); b.className = 'bez'; b.textContent = e.name;
+      k.appendChild(b);
+      k.title = 'Laden — Doppelklick löscht';
+      k.addEventListener('click', () => { ausInventar(i); document.getElementById('dlgRegal').close(); });
+      k.addEventListener('dblclick', () => {
+        const l = invLesen(); l.splice(i,1); invSchreiben(l); regalZeigen(); panelBauen();
+      });
+      g.appendChild(k);
+    });
+    box.appendChild(g);
+    box.appendChild(hinweis('Klick lädt einen Entwurf als Ausgangspunkt. Doppelklick löscht ihn.'));
+  }
+
+  box.appendChild(abschnitt('Mitnehmen', liste.length + (liste.length === 1 ? ' Entwurf' : ' Entwürfe')));
+  box.appendChild(hinweis('Das Inventar liegt im Browser und hängt an der Adresse dieser Seite. '
+    + 'Wer es auf einem anderen Gerät oder unter einer anderen Adresse haben will, sichert es hier '
+    + 'als Datei und liest sie dort wieder ein.'));
+  const leiste = document.createElement('div');
+  leiste.style.cssText = 'display:flex; gap:.45rem; flex-wrap:wrap; align-items:center; margin-top:.5rem;';
+  const meld = document.createElement('p'); meld.className = 'hinweis'; meld.style.marginTop = '.4rem';
+
+  const bSich = document.createElement('button');
+  bSich.className = 'knopf'; bSich.textContent = 'Inventar sichern';
+  bSich.disabled = !liste.length;
+  bSich.addEventListener('click', async () => {
+    try { meld.textContent = await inventarSichern(); meld.style.color = ''; }
+    catch(e){ meld.textContent = 'Sichern fehlgeschlagen: ' + e.message; meld.style.color = 'var(--warn)'; }
+  });
+
+  const feld = document.createElement('input');
+  feld.type = 'file'; feld.accept = '.json,application/json';
+  feld.style.display = 'none';
+  feld.addEventListener('change', async () => {
+    const datei = feld.files && feld.files[0];
+    if (!datei) return;
+    try {
+      const vorher = invLesen().length;
+      const ersetzen = vorher > 0 && !confirm(
+        'Zum bestehenden Inventar dazulegen?\n\n' +
+        'OK = dazulegen (gleiche Namen werden überschrieben)\n' +
+        'Abbrechen = bestehendes Inventar ersetzen');
+      const r = await inventarEinlesen(datei, ersetzen);
+      meld.style.color = '';
+      meld.textContent = `${r.neu} neu, ${r.ersetzt} überschrieben — jetzt ${r.gesamt} im Inventar.`;
+      regalZeigen(); panelBauen();
+      document.getElementById('regalInhalt').querySelectorAll('p.hinweis').forEach(p => {
+        if (p.textContent.startsWith('Das Inventar liegt')) p.insertAdjacentElement('afterend', meld);
+      });
+    } catch(e){
+      meld.textContent = 'Konnte die Datei nicht lesen: ' + e.message;
+      meld.style.color = 'var(--warn)';
+    } finally { feld.value = ''; }
+  });
+  const bLies = document.createElement('button');
+  bLies.className = 'knopf'; bLies.textContent = 'Inventar einlesen';
+  bLies.addEventListener('click', () => feld.click());
+
+  leiste.append(bSich, bLies, feld);
+  box.append(leiste, meld);
+  document.getElementById('dlgRegal').showModal();
+}
+
+/* =====================================================================
+   VERDRAHTUNG
+   ===================================================================== */
+function symSchalterSetzen(){
+  document.querySelectorAll('#symSchalter button').forEach(b =>
+    b.setAttribute('aria-pressed', String((b.dataset.sym === '1') === !!entwurf.symmetrie)));
+}
+document.querySelectorAll('#symSchalter button').forEach(b => {
+  b.addEventListener('click', () => {
+    const neu = b.dataset.sym === '1';
+    if (neu === entwurf.symmetrie) return;
+    if (!neu){
+      // Beim Aufbrechen wird die rechte Seite einmal nach links kopiert,
+      // danach laufen beide Seiten getrennt weiter.
+      for (const id of ['vorne','hinten']){
+        const a = entwurf.ansichten[id];
+        a.slots.links = kopie(a.slots.rechts);
+        if (a.punkte){ a.punkte.links = kopie(a.punkte.rechts); a.punkte.eckig.links = a.punkte.eckig.rechts.slice(); }
+      }
+      entwurf.symmetrie = false;
+      meldung('Asymmetrisch — linke und rechte Seite lassen sich jetzt getrennt ändern');
+    } else {
+      entwurf.symmetrie = true;
+      meldung('Symmetrisch — die linke Seite folgt wieder der rechten');
+    }
+    aktiveSeite = 'rechts';
+    symSchalterSetzen(); panelBauen(); allesZeichnen();
+  });
+});
+document.querySelectorAll('#modusSchalter button').forEach(b => {
+  b.addEventListener('click', () => {
+    modus = b.dataset.modus;
+    document.querySelectorAll('#modusSchalter button').forEach(x =>
+      x.setAttribute('aria-pressed', String(x.dataset.modus === modus)));
+    panelBauen(); allesZeichnen();
+  });
+});
+for (const [el2, id] of [['ansichtVorne','vorne'], ['ansichtHinten','hinten']]){
+  const n = document.getElementById(el2);
+  const waehlen = () => { aktiveAnsicht = id; panelBauen(); allesZeichnen(); };
+  n.addEventListener('click', waehlen);
+  n.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); waehlen(); } });
+}
+document.getElementById('btnSpeichern').addEventListener('click', insInventar);
+document.getElementById('btnRegal').addEventListener('click', regalZeigen);
+document.getElementById('btnExport').addEventListener('click', exportZeigen);
+document.getElementById('entwurfName').addEventListener('input', e => { entwurf.name = e.target.value; });
+
+symSchalterSetzen();
+panelBauen();
+allesZeichnen();
+</script>
+</body>
+</html>
