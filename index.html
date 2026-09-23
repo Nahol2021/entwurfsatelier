@@ -6,210 +6,245 @@
 <title>Entwurfsatelier</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Public+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
+  /* ===================================================================
+     GRAPHIT
+     Keine Akzentfarbe. Was ausgewaehlt ist, ist voll schwarz (bzw. voll
+     weiss) und unterstrichen; alles andere ist grau. In der Zeichnung
+     traegt die Strichstaerke die Hierarchie, so wie in einer echten
+     technischen Zeichnung: Umriss kraeftig, Details duenn, Hilfslinien
+     gestrichelt.
+
+     Der Arbeitsbereich laesst sich oben rechts zwischen hell und dunkel
+     umschalten; ohne eigene Wahl folgt er dem System.
+     =================================================================== */
   :root{
-    --paper:#E9EAEE; --raised:#F7F8FA; --sunk:#DFE1E7;
-    --ink:#1B1E24; --ink-soft:#5C636E; --ink-faint:#8C939E;
-    --line:#CDD2DB; --line-strong:#AEB5C2;
-    --accent:#4B3184; --accent-soft:#E9E4F4; --on-accent:#FFFFFF;
-    --warn:#9A5B12; --warn-soft:#F6ECDC;
-    --stoff:#FFFFFF; --naht:#1B1E24; --detail:#4B3184;
-    --display:'Bricolage Grotesque','Segoe UI',system-ui,sans-serif;
-    --body:'Public Sans','Segoe UI',system-ui,sans-serif;
+    --papier:#F2F2F0;      /* Bedienfeld */
+    --tisch:#E6E6E3;       /* Flaeche hinter den Ansichten */
+    --blatt:#FAFAF9;       /* Arbeitsbereich, auf dem gezeichnet wird */
+    --tinte:#121417;
+    --grau:#83868A;
+    --leise:#A3A5A7;
+    --linie:#DBDBD7;
+    --linie2:#C4C4BF;
+    --stoff:#FFFFFF;
+    --gegen:#FAFAF9;       /* Schrift auf gefuelltem Grund */
+    --schatten:rgba(0,0,0,.06);
+    --ui:'IBM Plex Sans',system-ui,sans-serif;
+    --zahl:'IBM Plex Mono',ui-monospace,monospace;
   }
   @media (prefers-color-scheme: dark){
     :root:not([data-theme="light"]){
-      --paper:#15171B; --raised:#1E2126; --sunk:#101216;
-      --ink:#E6E8EC; --ink-soft:#9BA3AE; --ink-faint:#6E7681;
-      --line:#2E333B; --line-strong:#434A55;
-      --accent:#B49BEC; --accent-soft:#2A2340; --on-accent:#16121F;
-      --warn:#E0B458; --warn-soft:#322913;
-      --stoff:#2A2E35; --naht:#E6E8EC; --detail:#B49BEC;
+      --papier:#1A1B1D; --tisch:#121315; --blatt:#202225;
+      --tinte:#EDEDEB; --grau:#8A8D90; --leise:#6A6D70;
+      --linie:#2E3033; --linie2:#3D4044;
+      --stoff:#2A2D31; --gegen:#121417;
+      --schatten:rgba(0,0,0,.4);
     }
   }
   :root[data-theme="dark"]{
-    --paper:#15171B; --raised:#1E2126; --sunk:#101216;
-    --ink:#E6E8EC; --ink-soft:#9BA3AE; --ink-faint:#6E7681;
-    --line:#2E333B; --line-strong:#434A55;
-    --accent:#B49BEC; --accent-soft:#2A2340; --on-accent:#16121F;
-    --warn:#E0B458; --warn-soft:#322913;
-    --stoff:#2A2E35; --naht:#E6E8EC; --detail:#B49BEC;
+    --papier:#1A1B1D; --tisch:#121315; --blatt:#202225;
+    --tinte:#EDEDEB; --grau:#8A8D90; --leise:#6A6D70;
+    --linie:#2E3033; --linie2:#3D4044;
+    --stoff:#2A2D31; --gegen:#121417;
+    --schatten:rgba(0,0,0,.4);
   }
 
   *{ box-sizing:border-box; }
   html,body{ height:100%; }
   body{
-    margin:0; background:var(--paper); color:var(--ink);
-    font-family:var(--body); font-size:15px; line-height:1.5;
+    margin:0; background:var(--tisch); color:var(--tinte);
+    font-family:var(--ui); font-size:15px; line-height:1.5;
   }
   button, input, select, textarea{ font-family:inherit; font-size:inherit; color:inherit; }
-  :focus-visible{ outline:2px solid var(--accent); outline-offset:2px; border-radius:4px; }
+  :focus-visible{ outline:2px solid var(--tinte); outline-offset:2px; }
 
+  /* ---------- Kopfzeile ---------- */
   header{
-    display:flex; align-items:center; gap:.7rem; flex-wrap:wrap;
-    padding:.7rem 1.1rem; background:var(--raised);
-    border-bottom:1px solid var(--line-strong);
+    display:flex; align-items:center; gap:.85rem; flex-wrap:wrap;
+    padding:.8rem 1.15rem; background:var(--papier);
+    border-bottom:1px solid var(--linie2);
   }
   header h1{
-    font-family:var(--display); font-weight:700; font-size:1.05rem;
-    margin:0; letter-spacing:-.01em; margin-right:.3rem;
+    font-size:1rem; font-weight:600; margin:0; letter-spacing:-.01em;
   }
   header .entwurfname{
-    border:1px solid transparent; background:transparent; color:var(--ink-soft);
-    padding:.25rem .45rem; border-radius:6px; font-size:.86rem; min-width:9rem;
+    border:0; border-bottom:1px solid transparent; background:transparent;
+    color:var(--grau); padding:.2rem .1rem; font-size:.88rem; min-width:10rem;
   }
-  header .entwurfname:hover, header .entwurfname:focus{
-    border-color:var(--line-strong); background:var(--paper); color:var(--ink);
-  }
-  .rechts{ margin-left:auto; display:flex; gap:.45rem; align-items:center; flex-wrap:wrap; }
+  header .entwurfname:hover{ border-bottom-color:var(--linie2); }
+  header .entwurfname:focus{ border-bottom-color:var(--tinte); color:var(--tinte); outline:none; }
+  .rechts{ margin-left:auto; display:flex; gap:1.05rem; align-items:center; flex-wrap:wrap; }
+  .rechts .trenner{ width:1px; height:1.05rem; background:var(--linie2); flex:none; }
 
+  /* ---------- Knoepfe: Text mit Unterstrich, keine Kaesten ---------- */
   .knopf{
-    background:var(--raised); border:1px solid var(--line-strong); color:var(--ink);
-    padding:.38rem .8rem; border-radius:7px; cursor:pointer; font-size:.84rem;
+    background:none; border:0; border-bottom:2px solid transparent;
+    color:var(--grau); padding:.14rem 0; cursor:pointer; font-size:.84rem;
   }
-  .knopf:hover{ border-color:var(--accent); color:var(--accent); }
-  .knopf.stark{ background:var(--accent); color:var(--on-accent); border-color:var(--accent); font-weight:600; }
-  .knopf.stark:hover{ color:var(--on-accent); filter:brightness(1.08); }
-  .knopf[disabled]{ opacity:.45; cursor:not-allowed; }
-  .knopf[disabled]:hover{ border-color:var(--line-strong); color:var(--ink); }
+  .knopf:hover{ color:var(--tinte); border-bottom-color:var(--linie2); }
+  .knopf.stark{ color:var(--tinte); font-weight:600; border-bottom-color:var(--tinte); }
+  .knopf.stark:hover{ border-bottom-color:var(--tinte); }
+  .knopf[disabled]{ color:var(--leise); cursor:not-allowed; border-bottom-color:transparent; }
+  .knopf[disabled]:hover{ color:var(--leise); }
 
-  /* Schalter */
-  .schalter{
-    display:inline-flex; border:1px solid var(--line-strong);
-    border-radius:8px; overflow:hidden; background:var(--paper);
-  }
+  /* ---------- Umschalter ---------- */
+  .schalter{ display:inline-flex; gap:.8rem; }
   .schalter button{
-    background:transparent; border:none; padding:.35rem .8rem;
-    cursor:pointer; font-size:.83rem; color:var(--ink-soft);
+    background:none; border:0; border-bottom:2px solid transparent;
+    padding:.14rem 0; cursor:pointer; font-size:.82rem; color:var(--grau);
   }
-  .schalter button + button{ border-left:1px solid var(--line); }
+  .schalter button:hover{ color:var(--tinte); border-bottom-color:var(--linie2); }
   .schalter button[aria-pressed="true"]{
-    background:var(--accent); color:var(--on-accent); font-weight:600;
+    color:var(--tinte); font-weight:600; border-bottom-color:var(--tinte);
   }
 
-  .raster{ display:grid; grid-template-columns:300px 1fr; min-height:calc(100vh - 53px); }
+  /* ---------- Grundraster ---------- */
+  .raster{ display:grid; grid-template-columns:302px 1fr; min-height:calc(100vh - 53px); }
 
   aside{
-    background:var(--sunk); border-right:1px solid var(--line);
-    padding:.9rem .8rem 3rem; overflow-y:auto; max-height:calc(100vh - 53px);
+    background:var(--papier); border-right:1px solid var(--linie);
+    padding:1rem .95rem 3rem; overflow-y:auto; max-height:calc(100vh - 53px);
   }
   .abschnitt{
-    font-family:var(--display); font-size:.68rem; font-weight:700;
-    text-transform:uppercase; letter-spacing:.09em; color:var(--ink-faint);
-    margin:1.15rem 0 .5rem; padding-bottom:.28rem; border-bottom:1px solid var(--line);
-    display:flex; align-items:center; gap:.4rem;
+    display:flex; align-items:baseline; gap:.5rem;
+    font-size:.82rem; font-weight:600; color:var(--tinte);
+    margin:1.35rem 0 .45rem;
   }
-  .abschnitt:first-child{ margin-top:0; }
-  .abschnitt .zusatz{ margin-left:auto; font-weight:500; text-transform:none; letter-spacing:0; font-size:.72rem; }
+  .abschnitt:first-child{ margin-top:.2rem; }
+  .abschnitt .zusatz{
+    margin-left:auto; font-weight:400; font-family:var(--zahl);
+    font-size:.66rem; color:var(--grau);
+  }
 
-  .chips{ display:flex; flex-wrap:wrap; gap:.3rem; }
+  /* ---------- Auswahl: unterstreichen statt einrahmen ---------- */
+  .chips{ display:flex; flex-wrap:wrap; gap:.1rem .95rem; }
   .chip{
-    border:1px solid var(--line-strong); background:var(--paper);
-    padding:.3rem .65rem; border-radius:16px; cursor:pointer; font-size:.81rem;
+    background:none; border:0; border-bottom:2px solid transparent;
+    padding:.14rem 0; cursor:pointer; font-size:.84rem; color:var(--grau);
   }
-  .chip:hover:not([aria-pressed="true"]){ border-color:var(--accent); color:var(--accent); }
-  .chip[aria-pressed="true"]{ background:var(--accent); color:var(--on-accent); border-color:var(--accent); font-weight:600; }
-  .chip.zufuegen{ border-style:dashed; color:var(--ink-soft); }
-  .chip.zufuegen:hover{ border-style:solid; }
+  .chip:hover{ color:var(--tinte); border-bottom-color:var(--linie2); }
+  .chip[aria-pressed="true"]{ color:var(--tinte); font-weight:600; border-bottom-color:var(--tinte); }
+  .chip.zufuegen{ color:var(--grau); }
+  .chip.zufuegen::before{ content:'+ '; color:var(--leise); }
+  .chip.zufuegen:hover{ color:var(--tinte); }
 
-  .slotname{ font-size:.75rem; color:var(--ink-soft); margin:.55rem 0 .25rem; }
-  .feld{ margin-bottom:.55rem; }
-  .feld label{ display:block; font-size:.75rem; color:var(--ink-soft); margin-bottom:.1rem; }
-  .feld label .wert{ float:right; color:var(--accent); font-variant-numeric:tabular-nums; }
-  .feld input[type=range]{ width:100%; accent-color:var(--accent); }
+  /* ---------- Regler und Felder ---------- */
+  .feld{ margin-bottom:.85rem; }
+  .feld label{
+    display:flex; justify-content:space-between; align-items:baseline;
+    font-size:.8rem; color:var(--tinte); margin-bottom:.3rem; gap:.5rem;
+  }
+  .feld label .wert{ font-family:var(--zahl); font-size:.8rem; color:var(--tinte); }
   .feld.geteilt label::after{
-    content:'beide Ansichten'; float:right; margin-right:.5rem;
-    font-size:.66rem; color:var(--ink-faint); text-transform:uppercase; letter-spacing:.05em;
+    content:'beide Ansichten'; font-family:var(--zahl); font-size:.62rem;
+    color:var(--grau); order:1; margin-left:auto;
   }
-  .feld.geteilt label .wert{ margin-left:.4rem; }
+  .feld.geteilt label .wert{ order:2; margin-left:.55rem; }
+  .feld input[type=range]{
+    width:100%; accent-color:var(--tinte); height:1.1rem;
+  }
+  .feld input[type=number], .feld input[type=text]{
+    width:100%; padding:.4rem .5rem; border:1px solid var(--linie2);
+    background:var(--blatt); color:var(--tinte); border-radius:2px;
+    font-family:var(--zahl); font-size:.86rem;
+  }
+  .feld input[type=file]{ font-size:.8rem; color:var(--grau); }
 
-  .hinweis{ font-size:.79rem; color:var(--ink-soft); }
-  .hinweis.warn{
-    background:var(--warn-soft); border-left:3px solid var(--warn);
-    padding:.45rem .6rem; border-radius:0 6px 6px 0; color:var(--ink);
-  }
+  .hinweis{ font-size:.8rem; color:var(--grau); margin:.45rem 0; }
   .hinweis.tipp{
-    background:var(--accent-soft); border-left:3px solid var(--accent);
-    padding:.45rem .6rem; border-radius:0 6px 6px 0; color:var(--ink);
+    border-left:1px solid var(--linie2); padding:.15rem 0 .15rem .65rem; color:var(--grau);
+  }
+  .hinweis.warn{
+    border-left:3px solid var(--tinte); padding:.15rem 0 .15rem .65rem; color:var(--tinte);
   }
 
-  /* Bühne */
-  main{ padding:1.1rem; display:flex; flex-direction:column; gap:.9rem; }
-  .ansichten{
-    display:grid; grid-template-columns:1fr 1fr; gap:1rem;
-    align-items:start;
-  }
+  /* ---------- Buehne ---------- */
+  main{ padding:1.15rem; display:flex; flex-direction:column; gap:.9rem; }
+  .ansichten{ display:grid; grid-template-columns:1fr 1fr; gap:1rem; align-items:start; }
   .ansicht{
-    background:var(--raised); border:1px solid var(--line);
-    border-radius:12px; padding:.9rem; cursor:pointer;
+    background:var(--blatt); border:1px solid var(--linie);
+    padding:.9rem; cursor:pointer; border-radius:2px;
     display:flex; flex-direction:column; align-items:center; gap:.5rem;
   }
-  .ansicht[aria-current="true"]{ border-color:var(--accent); box-shadow:0 0 0 1px var(--accent); }
+  .ansicht[aria-current="true"]{ border-color:var(--tinte); }
   .ansicht .marke{
-    font-family:var(--display); font-size:.7rem; font-weight:700;
-    text-transform:uppercase; letter-spacing:.09em; color:var(--ink-faint);
-    align-self:flex-start;
+    align-self:flex-start; font-size:.76rem; color:var(--grau);
+    border-bottom:2px solid transparent; padding-bottom:.1rem;
   }
-  .ansicht[aria-current="true"] .marke{ color:var(--accent); }
-  svg.flat{ width:100%; max-width:340px; max-height:56vh; height:auto; touch-action:none; display:block; }
+  .ansicht[aria-current="true"] .marke{
+    color:var(--tinte); font-weight:600; border-bottom-color:var(--tinte);
+  }
+
+  svg.flat{
+    width:100%; max-width:340px; max-height:56vh; height:auto;
+    touch-action:none; display:block; margin-inline:auto;
+  }
+  /* Strichstaerke traegt die Hierarchie, nicht die Farbe. */
   .flat .stoff{
-    fill:var(--stoff); stroke:var(--naht); stroke-width:1.5;
+    fill:var(--stoff); stroke:var(--tinte); stroke-width:1.6;
     stroke-linejoin:round; vector-effect:non-scaling-stroke;
   }
+  .flat .stoff.nurlinie{ fill:none; }
   .flat .detail{
-    fill:none; stroke:var(--detail); stroke-width:1.4;
+    fill:none; stroke:var(--tinte); stroke-width:0.9;
     stroke-linejoin:round; stroke-linecap:round; vector-effect:non-scaling-stroke;
   }
   .flat .mittellinie{
-    stroke:var(--accent); stroke-width:1; stroke-dasharray:4 4;
-    vector-effect:non-scaling-stroke; opacity:.5;
+    stroke:var(--grau); stroke-width:0.8; stroke-dasharray:5 4;
+    vector-effect:non-scaling-stroke;
   }
-  .flat .griff{ fill:var(--accent); cursor:grab; }
-  .flat .griff.links{ fill:var(--warn); }
+  /* Rechte Seite gefuellt, linke hohl - Unterscheidung ohne Farbe. */
+  .flat .griff{ fill:var(--tinte); stroke:none; cursor:grab; }
+  .flat .griff.links{
+    fill:var(--blatt); stroke:var(--tinte); stroke-width:1.6;
+    vector-effect:non-scaling-stroke;
+  }
   .flat .griff:active{ cursor:grabbing; }
   .flat .treffer{ fill:none; stroke:transparent; stroke-width:9; vector-effect:non-scaling-stroke; cursor:pointer; }
-  .flat .kanteaktiv{ fill:none; stroke:var(--accent); stroke-width:5; vector-effect:non-scaling-stroke; opacity:.45; }
+  .flat .kanteaktiv{ fill:none; stroke:var(--tinte); stroke-width:4; vector-effect:non-scaling-stroke; opacity:.3; }
 
   .fussleiste{
-    background:var(--raised); border:1px solid var(--line); border-radius:12px;
-    padding:.6rem .9rem; display:flex; gap:.6rem; align-items:center; flex-wrap:wrap;
+    background:var(--papier); border:1px solid var(--linie); border-radius:2px;
+    padding:.65rem .95rem; display:flex; gap:.7rem; align-items:center; flex-wrap:wrap;
   }
-  .fussleiste .hinweis{ margin-right:auto; }
+  .fussleiste .hinweis{ margin:0; margin-right:auto; font-family:var(--zahl); font-size:.72rem; }
 
+  /* ---------- Dialoge ---------- */
   dialog{
-    border:1px solid var(--line-strong); border-radius:12px; padding:0;
-    background:var(--raised); color:var(--ink);
+    border:1px solid var(--linie2); border-radius:2px; padding:0;
+    background:var(--papier); color:var(--tinte);
     max-width:min(640px,94vw); max-height:88vh; overflow:auto;
+    box-shadow:0 12px 40px var(--schatten);
   }
-  dialog::backdrop{ background:rgba(0,0,0,.45); }
-  dialog .inhalt{ padding:1.1rem; }
-  dialog h2{ font-family:var(--display); font-size:1.1rem; margin:0 0 .7rem; }
-  .regal{ display:grid; grid-template-columns:repeat(auto-fill,minmax(112px,1fr)); gap:.55rem; }
+  dialog::backdrop{ background:rgba(0,0,0,.5); }
+  dialog .inhalt{ padding:1.2rem; }
+  dialog h2{ font-size:1.05rem; font-weight:600; margin:0 0 .8rem; }
+  .regal{ display:grid; grid-template-columns:repeat(auto-fill,minmax(112px,1fr)); gap:.6rem; }
   .karte{
-    background:var(--paper); border:1px solid var(--line-strong); border-radius:9px;
-    padding:.3rem; cursor:pointer; text-align:center;
+    background:var(--blatt); border:1px solid var(--linie); border-radius:2px;
+    padding:.35rem; cursor:pointer; text-align:center;
   }
-  .karte:hover{ border-color:var(--accent); }
+  .karte:hover{ border-color:var(--tinte); }
   .karte svg{ width:100%; height:auto; display:block; }
-  .karte .bez{ font-size:.71rem; color:var(--ink-soft); margin-top:.15rem; word-break:break-word; }
+  .karte .bez{ font-size:.72rem; color:var(--grau); margin-top:.2rem; word-break:break-word; }
   textarea.ausgabe{
-    width:100%; height:150px; font-family:ui-monospace,monospace; font-size:.72rem;
-    border:1px solid var(--line-strong); border-radius:6px;
-    background:var(--paper); color:var(--ink); padding:.5rem;
+    width:100%; height:150px; font-family:var(--zahl); font-size:.72rem;
+    border:1px solid var(--linie2); border-radius:2px;
+    background:var(--blatt); color:var(--tinte); padding:.55rem;
   }
 
   @media (max-width: 900px){
-    /* Ohne das streckt das Raster die erste Zeile auf volle Hoehe und
-       zwischen Buehne und Bedienfeld klafft eine leere Flaeche. */
     .raster{ grid-template-columns:1fr; min-height:0; align-content:start; }
-    aside{ max-height:none; border-right:none; border-bottom:1px solid var(--line); order:2; }
+    aside{ max-height:none; border-right:0; border-bottom:1px solid var(--linie); order:2; }
     main{ order:1; padding:.8rem; }
     .ansichten{ grid-template-columns:1fr 1fr; gap:.6rem; }
     .ansicht{ padding:.6rem; }
     svg.flat{ max-height:38vh; }
-    header{ padding:.6rem .8rem; }
-    header h1{ font-size:.95rem; }
+    header{ padding:.65rem .8rem; gap:.6rem; }
+    header h1{ font-size:.92rem; }
+    .rechts{ gap:.85rem; }
   }
 </style>
 </head>
@@ -219,10 +254,16 @@
   <h1>Entwurfsatelier</h1>
   <input class="entwurfname" id="entwurfName" value="Neuer Entwurf" aria-label="Name des Entwurfs">
   <div class="rechts">
+    <div class="schalter" id="lichtSchalter" role="group" aria-label="Arbeitsbereich">
+      <button data-licht="hell" aria-pressed="false">Hell</button>
+      <button data-licht="dunkel" aria-pressed="false">Dunkel</button>
+    </div>
+    <span class="trenner" aria-hidden="true"></span>
     <div class="schalter" id="symSchalter" role="group" aria-label="Symmetrie">
       <button data-sym="1" aria-pressed="true">Symmetrisch</button>
       <button data-sym="0" aria-pressed="false">Asymmetrisch</button>
     </div>
+    <span class="trenner" aria-hidden="true"></span>
     <button class="knopf" id="btnRegal">Inventar</button>
     <button class="knopf" id="btnSpeichern">Ins Inventar legen</button>
     <button class="knopf stark" id="btnExport">Export</button>
@@ -990,7 +1031,7 @@ function miniSVG(e, ansichtId){
   try {
     const d = umrissVon(ansichtId || 'vorne');
     const svg = el('svg', {xmlns:NS, viewBox:'-50 -12 100 110', preserveAspectRatio:'xMidYMid meet'});
-    svg.appendChild(el('path', {d, fill:'var(--stoff)', stroke:'var(--naht)',
+    svg.appendChild(el('path', {d, fill:'var(--stoff)', stroke:'var(--tinte)',
       'stroke-width':1.4, 'stroke-linejoin':'round', 'vector-effect':'non-scaling-stroke'}));
     return svg;
   } finally { entwurf = sicherung; aktiveAnsicht = sicherA; }
@@ -1148,7 +1189,7 @@ function panelBauen(){
       const def = DETAILS[t];
       if (def.basen && !def.basen.includes(entwurf.basis)) continue;
       const b = document.createElement('button');
-      b.className = 'chip zufuegen'; b.textContent = '+ ' + def.bez;
+      b.className = 'chip zufuegen'; b.textContent = def.bez;
       b.addEventListener('click', () => {
         a.details.push({typ:t, p:DETAILS[t].start.slice()});
         panelBauen(); allesZeichnen();
@@ -1160,10 +1201,10 @@ function panelBauen(){
       panel.appendChild(abschnitt('Liegt drauf', a.details.length + ''));
       a.details.forEach((d,i) => {
         const z = document.createElement('div');
-        z.style.cssText = 'display:flex; align-items:center; gap:.4rem; margin-bottom:.25rem; font-size:.81rem;';
+        z.style.cssText = 'display:flex; align-items:center; gap:.7rem; margin-bottom:.3rem; font-size:.81rem;';
         const n = document.createElement('span'); n.textContent = DETAILS[d.typ].bez; n.style.flex = '1';
         const w = document.createElement('button');
-        w.className = 'knopf'; w.style.padding = '.1rem .5rem'; w.textContent = 'weg';
+        w.className = 'knopf'; w.textContent = 'entfernen';
         w.addEventListener('click', () => { a.details.splice(i,1); panelBauen(); allesZeichnen(); });
         z.append(n, w); panel.appendChild(z);
       });
@@ -1264,7 +1305,7 @@ function exportZeigen(){
     + 'Inkscape öffnen. Schick es mir, wenn wir daraus in Seamly2D ein Schnittmuster bauen — '
     + 'dann muss ich dir den Entwurf nicht erst erklären lassen.', 'tipp'));
   const reihe = document.createElement('div');
-  reihe.style.cssText = 'display:flex; gap:.45rem; flex-wrap:wrap; margin:.8rem 0;';
+  reihe.style.cssText = 'display:flex; gap:1.1rem; flex-wrap:wrap; margin:.8rem 0;';
   const meld = document.createElement('p'); meld.className = 'hinweis';
   const name = (entwurf.name || 'entwurf').replace(/[^\w\-]+/g,'_').toLowerCase();
 
@@ -1355,7 +1396,7 @@ function regalZeigen(){
     + 'Wer es auf einem anderen Gerät oder unter einer anderen Adresse haben will, sichert es hier '
     + 'als Datei und liest sie dort wieder ein.'));
   const leiste = document.createElement('div');
-  leiste.style.cssText = 'display:flex; gap:.45rem; flex-wrap:wrap; align-items:center; margin-top:.5rem;';
+  leiste.style.cssText = 'display:flex; gap:1.1rem; flex-wrap:wrap; align-items:center; margin-top:.5rem;';
   const meld = document.createElement('p'); meld.className = 'hinweis'; meld.style.marginTop = '.4rem';
 
   const bSich = document.createElement('button');
@@ -1363,7 +1404,7 @@ function regalZeigen(){
   bSich.disabled = !liste.length;
   bSich.addEventListener('click', async () => {
     try { meld.textContent = await inventarSichern(); meld.style.color = ''; }
-    catch(e){ meld.textContent = 'Sichern fehlgeschlagen: ' + e.message; meld.style.color = 'var(--warn)'; }
+    catch(e){ meld.textContent = 'Sichern fehlgeschlagen: ' + e.message; meld.style.fontWeight = '600'; }
   });
 
   const feld = document.createElement('input');
@@ -1379,7 +1420,7 @@ function regalZeigen(){
         'OK = dazulegen (gleiche Namen werden überschrieben)\n' +
         'Abbrechen = bestehendes Inventar ersetzen');
       const r = await inventarEinlesen(datei, ersetzen);
-      meld.style.color = '';
+      meld.style.fontWeight = '';
       meld.textContent = `${r.neu} neu, ${r.ersetzt} überschrieben — jetzt ${r.gesamt} im Inventar.`;
       regalZeigen(); panelBauen();
       document.getElementById('regalInhalt').querySelectorAll('p.hinweis').forEach(p => {
@@ -1387,7 +1428,7 @@ function regalZeigen(){
       });
     } catch(e){
       meld.textContent = 'Konnte die Datei nicht lesen: ' + e.message;
-      meld.style.color = 'var(--warn)';
+      meld.style.fontWeight = '600';
     } finally { feld.value = ''; }
   });
   const bLies = document.createElement('button');
@@ -1402,6 +1443,39 @@ function regalZeigen(){
 /* =====================================================================
    VERDRAHTUNG
    ===================================================================== */
+/* Arbeitsbereich hell oder dunkel. Ohne eigene Wahl folgt die Seite dem
+   System; sobald einmal umgeschaltet wurde, bleibt die Wahl gespeichert. */
+const LICHT_KEY = 'atelier.licht.v1';
+function lichtLesen(){
+  try { return localStorage.getItem(LICHT_KEY); } catch(e){ return null; }
+}
+function lichtSetzen(wahl, merken){
+  const wurzel = document.documentElement;
+  if (wahl === 'hell' || wahl === 'dunkel'){
+    wurzel.setAttribute('data-theme', wahl === 'hell' ? 'light' : 'dark');
+  } else {
+    wurzel.removeAttribute('data-theme');
+  }
+  if (merken){
+    try { if (wahl) localStorage.setItem(LICHT_KEY, wahl); else localStorage.removeItem(LICHT_KEY); } catch(e){}
+  }
+  const dunkelJetzt = wahl ? (wahl === 'dunkel')
+    : window.matchMedia('(prefers-color-scheme: dark)').matches;
+  document.querySelectorAll('#lichtSchalter button').forEach(b =>
+    b.setAttribute('aria-pressed', String((b.dataset.licht === 'dunkel') === dunkelJetzt)));
+  if (typeof allesZeichnen === 'function') allesZeichnen();
+}
+document.querySelectorAll('#lichtSchalter button').forEach(b => {
+  b.addEventListener('click', () => {
+    const jetzt = lichtLesen();
+    // Nochmal auf dieselbe Seite tippen gibt die Kontrolle ans System zurueck
+    lichtSetzen(jetzt === b.dataset.licht ? null : b.dataset.licht, true);
+  });
+});
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+  if (!lichtLesen()) lichtSetzen(null, false);
+});
+
 function symSchalterSetzen(){
   document.querySelectorAll('#symSchalter button').forEach(b =>
     b.setAttribute('aria-pressed', String((b.dataset.sym === '1') === !!entwurf.symmetrie)));
@@ -1447,6 +1521,7 @@ document.getElementById('btnRegal').addEventListener('click', regalZeigen);
 document.getElementById('btnExport').addEventListener('click', exportZeigen);
 document.getElementById('entwurfName').addEventListener('input', e => { entwurf.name = e.target.value; });
 
+lichtSetzen(lichtLesen(), false);
 symSchalterSetzen();
 panelBauen();
 allesZeichnen();
