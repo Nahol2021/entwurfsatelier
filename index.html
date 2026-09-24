@@ -139,6 +139,10 @@
     fill:none; stroke:var(--tinte); stroke-width:0.9;
     stroke-linejoin:round; stroke-linecap:round; vector-effect:non-scaling-stroke;
   }
+  .flat .aufsatz{
+    fill:var(--stoff); stroke:var(--tinte); stroke-width:1.2;
+    stroke-linejoin:round; vector-effect:non-scaling-stroke;
+  }
   .flat .mittellinie{
     stroke:var(--grau); stroke-width:0.8; stroke-dasharray:5 4;
     vector-effect:non-scaling-stroke;
@@ -481,10 +485,10 @@ const el = (tag,attrs) => {
 // Quelle: design-library/linearity/blatt_shirts.jpeg und blatt_pants.jpeg,
 // beide A4 quer mit Lineal, umgerechnet ueber das Seitenverhaeltnis.
 const FORM_STANDARD = {
-  weite:21.6, laenge:68.5, schulter:17.5, schulterfall:2.3,
-  halsweite:9.1, halstiefe:6.9,
-  armwinkel:39.0, armlaenge:24.4, armweite:17.5, armloch:26.4,
-  bundweite:16.0, beinlaenge:99.0, beinweite:16.4, schritt:54.5
+  weite:21.7, laenge:69.4, schulter:23.4, schulterfall:7.2,
+  halsweite:9.7, halstiefe:8.9,
+  armwinkel:42.6, armlaenge:17.7, armweite:17.5, armloch:23.5,
+  bundweite:12.5, beinlaenge:77.3, beinweite:13.3, schritt:27.9
 };
 
 function armPunkte(f, ab){
@@ -498,47 +502,75 @@ function armPunkte(f, ab){
 // Innennaht von der Mitte - davon haengt ab, wie deutlich die beiden
 // Beine als zwei Beine lesbar sind.
 function hosenSaumBau(f, extra, rundung, gummi){
-  const innen = 3.6 + extra;
+  const innen = (f.beinInnen ?? 2.4) + extra;
   const aussen = innen + f.beinweite;
   const hoehe = f.beinlaenge - f.schritt;
   return [
     {p:[aussen, f.beinlaenge], r:rundung,
      kante: gummi ? {art:'bogen', w:-0.8, bez:'Gummisaum'} : {art:'gerade', bez:'Saum'}},
+    // Auf den Blaettern laeuft die Innennaht fast gerade vom Schritt zum
+    // Saum - nur eine Spur nach aussen gebaucht.
     {p:[innen, f.beinlaenge], r:rundung, kante:{art:'kubik',
-      c1:[innen*0.95, f.schritt + hoehe*0.45],
-      c2:[innen*0.62, f.schritt + 5.5], bez:'Innenbein'}}
+      c1:[innen*0.72, f.schritt + hoehe*0.60],
+      c2:[innen*0.28, f.schritt + hoehe*0.22], bez:'Innenbein'}}
   ];
+}
+
+/* Auf Johans Blaettern ist der Halsausschnitt keine Kerbe im Umriss:
+   oben laeuft das Halsbuendchen als flacher Bogen von Schulterpunkt zu
+   Schulterpunkt durch, die eigentliche Ausschnittlinie liegt als innere
+   Linie darunter. Genau so zeigt es auch studie_ausschnitte - derselbe
+   Rumpf, nur der Kragen wird getauscht. Darum liefert dieser Steckplatz
+   immer dieselbe Umrisskante und unterscheidet sich in 'innen'. */
+function halsbandTiefe(f){ return f.halsweite*0.15; }
+function halsKante(f){
+  const t = halsbandTiefe(f);
+  return [{p:[0,t], r:0, kante:{art:'kubik',
+    c1:[f.halsweite*0.45, t], c2:[f.halsweite*0.80, 0], bez:'Halskante'}}];
+}
+function gespiegelt(d){ return d.replace(/(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/g,
+  (m,x,y) => `${(-parseFloat(x)).toFixed(2)},${y}`); }
+function halsRund(f, t){
+  const d = `M 0,${t.toFixed(2)} C ${(f.halsweite*0.55).toFixed(2)},${t.toFixed(2)}`
+          + ` ${(f.halsweite*0.99).toFixed(2)},${(t*0.24).toFixed(2)}`
+          + ` ${f.halsweite.toFixed(2)},0`;
+  return [d, gespiegelt(d)];
 }
 
 const TEILE = {
   /* ---- Steckplaetze des Oberteils ---- */
   ausschnitt:{ bez:'Halsausschnitt', opt:{
-    rund:{bez:'Rund', bau:(f)=>[{p:[0,f.halstiefe], r:0, kante:{art:'kubik',
-      c1:[f.halsweite*0.58,f.halstiefe], c2:[f.halsweite*0.99,f.halstiefe*0.34], bez:'Halsausschnitt'}}]},
-    tief:{bez:'Tief rund', vor:f=>{f.halstiefe*=1.9;}, bau:(f)=>[{p:[0,f.halstiefe], r:0, kante:{art:'kubik',
-      c1:[f.halsweite*0.62,f.halstiefe], c2:[f.halsweite*1.0,f.halstiefe*0.30], bez:'Halsausschnitt'}}]},
-    v:{bez:'V', vor:f=>{f.halstiefe*=2.5;}, bau:(f)=>[{p:[0,f.halstiefe], r:1.4,
-      kante:{art:'gerade', bez:'V-Ausschnitt'}}]},
-    boot:{bez:'U-Boot', vor:f=>{f.halstiefe*=0.45; f.halsweite*=1.55;}, bau:(f)=>[{p:[0,f.halstiefe], r:0,
-      kante:{art:'bogen', w:-f.halstiefe*0.5, bez:'U-Boot-Ausschnitt'}}]},
-    eckig:{bez:'Eckig', vor:f=>{f.halstiefe*=1.5;}, bau:(f)=>[
-      {p:[0,f.halstiefe], r:0, kante:{art:'gerade', bez:'Ausschnitt unten'}},
-      {p:[f.halsweite,f.halstiefe], r:0.6, kante:{art:'gerade', bez:'Ausschnitt seitlich'}}]},
-    stehkragen:{bez:'Stehkragen', vor:f=>{f.halstiefe*=0.8;}, bau:(f)=>[
-      {p:[0,-5], r:0, kante:{art:'gerade', bez:'Kragenkante'}},
-      {p:[f.halsweite*0.92,-4.4], r:1.0, kante:{art:'gerade', bez:'Kragenhöhe'}}]}
+    rund:{bez:'Rund', bau:halsKante,
+      innen:(f)=>halsRund(f, f.halstiefe)},
+    tief:{bez:'Tief rund', vor:f=>{f.halstiefe*=1.9;}, bau:halsKante,
+      innen:(f)=>halsRund(f, f.halstiefe)},
+    v:{bez:'V', vor:f=>{f.halstiefe*=2.5;}, bau:halsKante,
+      innen:(f)=>{ const d=`M 0,${f.halstiefe.toFixed(2)} L ${f.halsweite.toFixed(2)},0`;
+        return [d, gespiegelt(d)]; }},
+    boot:{bez:'U-Boot', vor:f=>{f.halstiefe*=0.45; f.halsweite*=1.55;}, bau:halsKante,
+      innen:(f)=>[`M ${(-f.halsweite).toFixed(2)},0`
+        + ` C ${(-f.halsweite*0.5).toFixed(2)},${f.halstiefe.toFixed(2)}`
+        + ` ${(f.halsweite*0.5).toFixed(2)},${f.halstiefe.toFixed(2)}`
+        + ` ${f.halsweite.toFixed(2)},0`]},
+    eckig:{bez:'Eckig', vor:f=>{f.halstiefe*=1.5;}, bau:halsKante,
+      innen:(f)=>[`M ${(-f.halsweite).toFixed(2)},0 L ${(-f.halsweite).toFixed(2)},${f.halstiefe.toFixed(2)}`
+        + ` L ${f.halsweite.toFixed(2)},${f.halstiefe.toFixed(2)} L ${f.halsweite.toFixed(2)},0`]},
+    stehkragen:{bez:'Stehkragen', vor:f=>{f.halstiefe*=0.8;}, bau:halsKante,
+      aufsatz:(f)=>{ const b=f.halsweite*0.95, h=f.halsweite*0.62;
+        return [`M ${(-b).toFixed(2)},${halsbandTiefe(f).toFixed(2)} L ${(-b*0.96).toFixed(2)},${(-h).toFixed(2)}`
+              + ` L ${(b*0.96).toFixed(2)},${(-h).toFixed(2)} L ${b.toFixed(2)},${halsbandTiefe(f).toFixed(2)}`]; }}
   }},
   aermel:{ bez:'Ärmel', opt:{
     kurz:{bez:'Kurzarm', bau:(f)=>{ const s=armPunkte(f,[f.schulter,f.schulterfall]); return [
-      {p:[f.halsweite,0], r:1.2, kante:{art:'gerade', bez:'Schulternaht'}},
-      {p:[f.schulter,f.schulterfall], r:1.4, kante:{art:'gerade', bez:'Ärmelkappe'}},
-      {p:s.aus, r:0.7, kante:{art:'gerade', bez:'Ärmelsaum'}},
-      {p:s.ein, r:0.7, kante:{art:'gerade', bez:'Achselnaht'}}]; }},
-    halb:{bez:'Halbarm', vor:f=>{f.armlaenge=33; f.armweite=16;},
+      {p:[f.halsweite,0], r:1.0, kante:{art:'gerade', bez:'Schulternaht'}},
+      {p:[f.schulter,f.schulterfall], r:1.0, kante:{art:'gerade', bez:'Ärmelkappe'}},
+      {p:s.aus, r:0.4, kante:{art:'gerade', bez:'Ärmelsaum'}},
+      {p:s.ein, r:0.4, kante:{art:'gerade', bez:'Achselnaht'}}]; }},
+    halb:{bez:'Halbarm', vor:f=>{f.armlaenge=26; f.armweite=16;},
       bau:(f)=>TEILE.aermel.opt.kurz.bau(f)},
-    lang:{bez:'Langarm', vor:f=>{f.armlaenge=54; f.armweite=12.5; f.armwinkel=30;},
+    lang:{bez:'Langarm', vor:f=>{f.armlaenge=45; f.armweite=13; f.armwinkel=34;},
       bau:(f)=>TEILE.aermel.opt.kurz.bau(f)},
-    weit:{bez:'Weit', vor:f=>{f.armweite=29; f.armlaenge=26;},
+    weit:{bez:'Weit', vor:f=>{f.armweite=26; f.armlaenge=20;},
       bau:(f)=>{ const s=armPunkte(f,[f.schulter,f.schulterfall]); return [
         {p:[f.halsweite,0], r:1.2, kante:{art:'gerade', bez:'Schulternaht'}},
         {p:[f.schulter,f.schulterfall], r:1.4, kante:{art:'bogen', w:3.0, bez:'Ärmelkappe'}},
@@ -550,27 +582,33 @@ const TEILE = {
     ohne:{bez:'Ärmellos', bau:(f)=>[
       {p:[f.halsweite,0], r:1.2, kante:{art:'gerade', bez:'Schulternaht'}},
       {p:[f.schulter,f.schulterfall], r:1.4, kante:{art:'bogen', w:-3.2, bez:'Armloch'}}]},
-    raglan:{bez:'Raglan', vor:f=>{f.armwinkel=34; f.armlaenge=27; f.armweite=17;},
+    raglan:{bez:'Raglan', vor:f=>{f.armwinkel=36; f.armlaenge=33; f.armweite=17;},
       bau:(f)=>{ const s=armPunkte(f,[f.halsweite,0]); return [
         {p:[f.halsweite,0], r:0, kante:{art:'bogen', w:1.4, bez:'Raglannaht oben'}},
         {p:s.aus, r:1.3, kante:{art:'gerade', bez:'Ärmelsaum'}},
         {p:s.ein, r:1.3, kante:{art:'bogen', w:-1.4, bez:'Raglannaht unten'}}]; }}
   }},
   koerper:{ bez:'Passform', opt:{
-    // Die drei Schnitte stammen aus blatt_shirts.jpeg. 'setzt' schreibt die
-    // gemessenen Werte in den Entwurf, danach bleiben die Regler frei.
+    // Die drei Schnitte stammen aus blatt_shirts.jpeg. Jede Ecke der
+    // Zeichnung ist ein Knoten der Kette, 'setzt' schreibt die abgelesenen
+    // Werte einmal in den Entwurf - danach bleiben die Regler frei.
+    // 'setztHinten' gilt nur fuer die Rueckansicht (flacherer Ausschnitt).
     regular:{bez:'Regular',
-      setzt:{weite:21.6, laenge:68.5, schulter:17.5, schulterfall:2.3, armloch:26.4, armlaenge:24.4, armwinkel:39.0, armweite:17.5, halsweite:9.1, halstiefe:6.9},
-      bau:(f)=>[{p:[f.weite,f.schulterfall+f.armloch], r:1.1,
+      setzt:{weite:21.7, laenge:69.4, schulter:23.4, schulterfall:7.2, armloch:23.5, armlaenge:17.7, armwinkel:42.6, armweite:17.5, halsweite:9.7, halstiefe:8.9},
+      setztHinten:{halstiefe:1.5},
+      bau:(f)=>[{p:[f.weite,f.schulterfall+f.armloch], r:0.8,
         kante:{art:'gerade', bez:'Seitennaht'}}]},
     oversized:{bez:'Oversized',
-      setzt:{weite:24.4, laenge:60.1, schulter:24, schulterfall:6.4, armloch:24.0, armlaenge:21.5, armwinkel:40.0, armweite:17.1, halsweite:7.9, halstiefe:5.3},
-      vor:f=>{f.saumweite = f.weite + 1.2;},
-      bau:(f)=>[{p:[f.weite,f.schulterfall+f.armloch], r:1.4,
-        kante:{art:'bogen', w:0.7, bez:'Seitennaht'}}]},
+      setzt:{weite:24.5, laenge:60.3, schulter:26.3, schulterfall:8.9, armloch:23.1, armlaenge:18.6, armwinkel:40.7, armweite:17.6, halsweite:8.8, halstiefe:7.0},
+      setztHinten:{halstiefe:1.5},
+      vor:f=>{f.saumweite = f.weite + 1.4;},
+      bau:(f)=>[{p:[f.weite,f.schulterfall+f.armloch], r:0.8,
+        kante:{art:'gerade', bez:'Seitennaht'}}]},
     cropped:{bez:'Cropped',
-      setzt:{weite:22.4, laenge:42.6, schulter:17.0, schulterfall:2.1, armloch:24.0, armlaenge:21.3, armwinkel:32, armweite:18.2, halsweite:10.0, halstiefe:6.9},
-      bau:(f)=>[{p:[f.weite,f.schulterfall+f.armloch], r:1.1,
+      setzt:{weite:22.4, laenge:42.9, schulter:22.0, schulterfall:4.9, armloch:23.0, armlaenge:16.5, armwinkel:37.9, armweite:17.1, halsweite:10.7, halstiefe:9.1},
+      setztHinten:{halstiefe:1.5},
+      vor:f=>{f.saumweite = f.weite + 0.2;},
+      bau:(f)=>[{p:[f.weite,f.schulterfall+f.armloch], r:0.8,
         kante:{art:'gerade', bez:'Seitennaht'}}]},
     tailliert:{bez:'Tailliert', vor:f=>{f.saumweite = f.weite-0.5;},
       bau:(f)=>[{p:[f.weite,f.schulterfall+f.armloch], r:1.1,
@@ -608,26 +646,34 @@ const TEILE = {
       bau:(f)=>[{p:[0,0], r:0, kante:{art:'bogen', w:-0.8, bez:'Gummibund'}}]}
   }},
   bein:{ bez:'Beinform', opt:{
-    // Straight, Baggy und Slim sind aus blatt_pants.jpeg gemessen; der
-    // Hueftfaktor ist das Verhaeltnis Hueftbreite zu Bundbreite.
-    gerade:{bez:'Straight', setzt:{bundweite:16.0, beinweite:16.4, beinlaenge:99.0, schritt:54.5},
+    // Straight, Baggy und Slim sind aus blatt_pants.jpeg abgelesen.
+    // 'beinInnen' ist der Abstand der Innennaht von der Mitte - davon
+    // haengt ab, wie deutlich die beiden Beine als zwei Beine lesbar sind.
+    // Die breiteste Stelle liegt bei Straight und Slim auf Schritthoehe,
+    // bei Baggy auf halber Beinlaenge darunter.
+    gerade:{bez:'Straight', setzt:{bundweite:12.5, beinweite:13.3, beinlaenge:77.3, schritt:27.9},
+      vor:f=>{f.beinInnen = 2.5;},
       bau:(f)=>[
-        {p:[f.bundweite,0], r:0.8, kante:{art:'bogen', w:1.0, bez:'Seitennaht'}},
-        {p:[f.bundweite*1.172, f.schritt*0.82], r:0, kante:{art:'gerade', bez:'Außenbein'}}]},
-    baggy:{bez:'Baggy', setzt:{bundweite:16.0, beinweite:17.8, beinlaenge:97, schritt:58.0},
+        {p:[f.bundweite,0], r:0.6, kante:{art:'bogen', w:0.4, bez:'Seitennaht'}},
+        {p:[f.bundweite*1.176, f.schritt*0.91], r:0, kante:{art:'gerade', bez:'Außenbein'}}]},
+    baggy:{bez:'Baggy', setzt:{bundweite:13.0, beinweite:15.5, beinlaenge:76.0, schritt:29.3},
+      vor:f=>{f.beinInnen = 1.7;},
       bau:(f)=>[
-        {p:[f.bundweite,0], r:0.8, kante:{art:'bogen', w:1.8, bez:'Seitennaht'}},
-        {p:[f.bundweite*1.459, f.schritt*0.80], r:0, kante:{art:'bogen', w:1.4, bez:'Außenbein'}}]},
-    slim:{bez:'Slim', setzt:{bundweite:16.5, beinweite:9.8, beinlaenge:94, schritt:29.5},
+        {p:[f.bundweite,0], r:0.6, kante:{art:'bogen', w:1.7, bez:'Seitennaht'}},
+        {p:[f.bundweite*1.485, f.schritt + (f.beinlaenge-f.schritt)*0.50], r:0,
+         kante:{art:'bogen', w:0.8, bez:'Außenbein'}}]},
+    slim:{bez:'Slim', setzt:{bundweite:12.8, beinweite:7.9, beinlaenge:73.9, schritt:20.5},
+      vor:f=>{f.beinInnen = 2.9;},
       bau:(f)=>[
-        {p:[f.bundweite,0], r:0.8, kante:{art:'bogen', w:0.6, bez:'Seitennaht'}},
-        {p:[f.bundweite*1.072, f.schritt*0.85], r:0, kante:{art:'bogen', w:-1.0, bez:'Außenbein'}}]},
-    weit:{bez:'Wide Leg', vor:f=>{f.beinweite=22;}, bau:(f)=>[
-      {p:[f.bundweite,0], r:0.8, kante:{art:'bogen', w:1.2, bez:'Seitennaht'}},
-      {p:[f.bundweite*1.30, f.schritt*0.78], r:0, kante:{art:'gerade', bez:'Außenbein'}}]},
-    carrot:{bez:'Carrot', vor:f=>{f.beinweite=9;}, bau:(f)=>[
-      {p:[f.bundweite+2.5,0], r:0.8, kante:{art:'bogen', w:2.6, bez:'Seitennaht'}},
-      {p:[f.bundweite*1.40, f.schritt*0.9], r:0, kante:{art:'bogen', w:-2.0, bez:'Außenbein'}}]}
+        {p:[f.bundweite,0], r:0.6, kante:{art:'bogen', w:0.5, bez:'Seitennaht'}},
+        {p:[f.bundweite*1.082, f.schritt*0.87], r:0, kante:{art:'bogen', w:-0.9, bez:'Außenbein'}}]},
+    weit:{bez:'Wide Leg', vor:f=>{f.beinweite=19; f.beinInnen = 1.7;}, bau:(f)=>[
+      {p:[f.bundweite,0], r:0.6, kante:{art:'bogen', w:1.2, bez:'Seitennaht'}},
+      {p:[f.bundweite*1.32, f.schritt + (f.beinlaenge-f.schritt)*0.35], r:0,
+       kante:{art:'gerade', bez:'Außenbein'}}]},
+    carrot:{bez:'Carrot', vor:f=>{f.beinweite=7.5; f.beinInnen = 2.9;}, bau:(f)=>[
+      {p:[f.bundweite+2.0,0], r:0.6, kante:{art:'bogen', w:2.0, bez:'Seitennaht'}},
+      {p:[f.bundweite*1.42, f.schritt*0.95], r:0, kante:{art:'bogen', w:-1.6, bez:'Außenbein'}}]}
   }},
   hosensaum:{ bez:'Hosensaum', opt:{
     gerade:{bez:'Gerade', bau:(f)=>hosenSaumBau(f, 0, 0.5, false)},
@@ -637,30 +683,6 @@ const TEILE = {
       bau:(f)=>hosenSaumBau(f, 1.0, 0.8, false)},
     gummi:{bez:'Gummisaum', vor:f=>{f.beinweite-=3;},
       bau:(f)=>hosenSaumBau(f, 0, 1.6, true)}
-  }},
-  /* ---- Steckplaetze des Rocks ---- */
-  rockform:{ bez:'Rockform', opt:{
-    alinie:{bez:'A-Linie', bau:(f)=>[
-      {p:[0,0], r:0, kante:{art:'gerade', bez:'Bund'}},
-      {p:[f.bundweite,0], r:0.8, kante:{art:'bogen', w:f.bundweite*0.16, bez:'Seitennaht'}}]},
-    gerade:{bez:'Gerade', bau:(f)=>[
-      {p:[0,0], r:0, kante:{art:'gerade', bez:'Bund'}},
-      {p:[f.bundweite,0], r:0.8, kante:{art:'gerade', bez:'Seitennaht'}}]},
-    tellerrock:{bez:'Teller', bau:(f)=>[
-      {p:[0,0], r:0, kante:{art:'gerade', bez:'Bund'}},
-      {p:[f.bundweite*0.9,0], r:0.8, kante:{art:'bogen', w:f.bundweite*0.42, bez:'Seitennaht'}}]},
-    bleistift:{bez:'Bleistift', bau:(f)=>[
-      {p:[0,0], r:0, kante:{art:'gerade', bez:'Bund'}},
-      {p:[f.bundweite,0], r:0.8, kante:{art:'bogen', w:-f.bundweite*0.08, bez:'Seitennaht'}}]}
-  }},
-  rocksaum:{ bez:'Saum', opt:{
-    gerade:{bez:'Gerade', bau:(f)=>[{p:[f.rockSaumX,f.laenge], r:1.2,
-      kante:{art:'bogen', w:1.6, bez:'Saum'}}]},
-    stufe:{bez:'Stufe', bau:(f)=>[
-      {p:[f.rockSaumX,f.laenge], r:1.2, kante:{art:'gerade', bez:'Saum seitlich'}},
-      {p:[f.rockSaumX*0.55,f.laenge-6], r:1.2, kante:{art:'bogen', w:1.2, bez:'Saumstufe'}}]},
-    asym:{bez:'Schräg', bau:(f)=>[{p:[f.rockSaumX,f.laenge-9], r:1.2,
-      kante:{art:'bogen', w:2.2, bez:'Schrägsaum'}}]}
   }}
 };
 
@@ -678,7 +700,7 @@ const BASEN = {
       {k:'weite',        bez:'Weite',           min:18, max:42, s:0.5, geteilt:true},
       {k:'laenge',       bez:'Länge',           min:36, max:98, s:0.5, geteilt:true},
       {k:'schulter',     bez:'Schulterbreite',  min:16, max:34, s:0.5, geteilt:true},
-      {k:'schulterfall', bez:'Schulterneigung', min:0.5,max:7,  s:0.1, geteilt:true},
+      {k:'schulterfall', bez:'Schulterneigung', min:0.5,max:14, s:0.1, geteilt:true},
       {k:'armloch',      bez:'Armlochtiefe',    min:15, max:36, s:0.5, geteilt:true},
       {k:'armlaenge',    bez:'Ärmellänge',      min:3,  max:62, s:0.5, geteilt:true},
       {k:'armweite',     bez:'Ärmelweite',      min:7,  max:34, s:0.5, geteilt:true},
@@ -694,31 +716,15 @@ const BASEN = {
     slots:[{id:'bund', geteilt:true}, {id:'bein', geteilt:true}, {id:'hosensaum', geteilt:true}],
     standard:{bund:'normal', bein:'gerade', hosensaum:'gerade'},
     regler:[
-      {k:'bundweite',  bez:'Bundweite',   min:12, max:32, s:0.5, geteilt:true},
+      {k:'bundweite',  bez:'Bundweite',   min:9,  max:32, s:0.5, geteilt:true},
       {k:'schritt',    bez:'Schritthöhe', min:18, max:44, s:0.5, geteilt:true},
       {k:'beinlaenge', bez:'Beinlänge',   min:40, max:120,s:0.5, geteilt:true},
       {k:'beinweite',  bez:'Beinweite',   min:5,  max:30, s:0.5, geteilt:true},
       {k:'laengeExtra',bez:'Diese Ansicht länger um', min:-10, max:18, s:0.5, geteilt:false}
     ],
     endpunkt:f => [0, f.schritt]
-  },
-  rock:{
-    bez:'Rock',
-    slots:[{id:'rockform', geteilt:true}, {id:'rocksaum', geteilt:true}],
-    standard:{rockform:'alinie', rocksaum:'gerade'},
-    regler:[
-      {k:'bundweite', bez:'Bundweite', min:12, max:32, s:0.5, geteilt:true},
-      {k:'laenge',    bez:'Länge',     min:25, max:110,s:0.5, geteilt:true},
-      {k:'laengeExtra',bez:'Diese Ansicht länger um', min:-10, max:18, s:0.5, geteilt:false}
-    ],
-    endpunkt:f => [0, f.laenge + 3]
   }
 };
-// Die Rockform legt fest, wie weit der Saum aussen liegt
-TEILE.rockform.opt.alinie.vor     = f => { f.rockSaumX = f.bundweite*1.5;  };
-TEILE.rockform.opt.gerade.vor     = f => { f.rockSaumX = f.bundweite;      };
-TEILE.rockform.opt.tellerrock.vor = f => { f.rockSaumX = f.bundweite*2.4;  };
-TEILE.rockform.opt.bleistift.vor  = f => { f.rockSaumX = f.bundweite*0.88; };
 
 const DETAILS = {
   kapuze:{bez:'Kapuze', basen:['oberteil'], hinter:true, mittig:true, start:[0,0], zeichne:(x,y,f)=>{
@@ -767,13 +773,13 @@ const DETAILS = {
   hosenschlitz:{bez:'Hosenschlitz', basen:['hose'], hinter:false, mittig:false, start:[3,1],
     zeichne:(x,y,f)=> `M ${x},${y} L ${x},${(f.schritt??30)*0.62}`
       + ` C ${x},${(f.schritt??30)*0.78} ${x+2.2},${(f.schritt??30)*0.82} ${x+3.4},${(f.schritt??30)*0.86}`},
-  eingriff:{bez:'Eingrifftasche', basen:['hose','rock'], hinter:false, mittig:false, start:[14,10],
+  eingriff:{bez:'Eingrifftasche', basen:['hose'], hinter:false, mittig:false, start:[9,6],
     zeichne:(x,y)=> `M ${x-5},${y-4} C ${x-1},${y+1} ${x+2},${y+5} ${x+3},${y+9}`},
-  gesaesstasche:{bez:'Gesäßtasche', basen:['hose'], hinter:false, mittig:false, start:[12,16],
+  gesaesstasche:{bez:'Gesäßtasche', basen:['hose'], hinter:false, mittig:false, start:[7,13],
     zeichne:(x,y)=> `M ${x-5},${y-5} L ${x+5},${y-5} L ${x+5},${y+2} L ${x},${y+6} L ${x-5},${y+2} Z`},
-  bundfalte:{bez:'Bundfalte', basen:['hose'], hinter:false, mittig:false, start:[9,0],
+  bundfalte:{bez:'Bundfalte', basen:['hose'], hinter:false, mittig:false, start:[6,0],
     zeichne:(x,y,f)=> `M ${x},${y+1} L ${x},${(f.schritt??30)*0.75}`},
-  bein_ziernaht:{bez:'Seitenstreifen', basen:['hose'], hinter:false, mittig:false, start:[20,4],
+  bein_ziernaht:{bez:'Seitenstreifen', basen:['hose'], hinter:false, mittig:false, start:[13,3],
     zeichne:(x,y,f)=> `M ${x},${y} L ${x-2},${f.beinlaenge??99}`}
 };
 
@@ -788,7 +794,7 @@ const DETAILS = {
 function neueAnsicht(basisId){
   const std = kopie(BASEN[basisId].standard);
   return {
-    form:{halsweite:10, halstiefe:7.2, laengeExtra:0},
+    form:{halsweite:9.7, halstiefe:8.9, laengeExtra:0},
     slots:{rechts:kopie(std), links:kopie(std)},
     details:[],
     punkte:null
@@ -809,9 +815,10 @@ let aktiveAnsicht = 'vorne';
 let modus = 'bausteine';
 let aktiveSeite = 'rechts';   // nur im asymmetrischen Modus sichtbar
 
-// Rueckseite darf anders aussehen: hinten flacherer Ausschnitt
-entwurf.ansichten.hinten.form.halstiefe = 2.4;
-entwurf.ansichten.hinten.form.laengeExtra = 1.5;
+// Rueckseite darf anders aussehen. Auf den Blaettern ist der hintere
+// Ausschnitt nur eine flache Bogenlinie, die Laenge aber dieselbe.
+entwurf.ansichten.hinten.form.halstiefe = 1.5;
+entwurf.ansichten.hinten.form.laengeExtra = 0;
 
 function formFuer(ansichtId){
   const a = entwurf.ansichten[ansichtId];
@@ -968,6 +975,59 @@ function detailPfade(id, hinter){
     .filter(x => x.def && !!x.def.hinter === !!hinter)
     .map(x => ({i:x.i, d:x.def.zeichne(x.d.p[0], x.d.p[1], f2), p:x.d.p, def:x.def}));
 }
+// Auf jedem Blatt laeuft vom Schulterpunkt eine nach innen gebauchte
+// Kurve zur Achsel - die Armlochnaht. Sie gehoert zum Bild des
+// Kleidungsstuecks und nicht zu den waehlbaren Details, darum wird sie
+// hier aus der Kette heraus gezeichnet statt angeheftet.
+const ARMLOCH_NAHT = {kurz:1, halb:1, lang:1, weit:1, raglan:1};
+function armlochBogen(f, vz, amHals){
+  const A = amHals ? [vz*f.halsweite, 0] : [vz*f.schulter, f.schulterfall];
+  const B = [vz*f.weite, f.schulterfall + f.armloch];
+  const dx = B[0]-A[0], dy = B[1]-A[1], L = Math.hypot(dx,dy) || 1;
+  let nx = dy/L, ny = -dx/L;              // Senkrechte, die zur Mitte zeigt
+  if (nx*vz > 0){ nx = -nx; ny = -ny; }
+  const b = L*0.36;
+  const C = [(A[0]+B[0])/2 + nx*b, (A[1]+B[1])/2 + ny*b];
+  return `M ${A[0].toFixed(2)},${A[1].toFixed(2)}`
+       + ` Q ${C[0].toFixed(2)},${C[1].toFixed(2)}`
+       + ` ${B[0].toFixed(2)},${B[1].toFixed(2)}`;
+}
+// Linien, die zum Kleidungsstueck gehoeren, aber nicht zum Umriss:
+// Armlochnaht und Halsausschnitt. 'aufsatz' sind Teile, die oben
+// aufliegen (Stehkragen) und darum gefuellt gezeichnet werden.
+function innenPfade(id){
+  const a = entwurf.ansichten[id];
+  const linien = [], aufsaetze = [];
+  if (entwurf.basis !== 'oberteil') return {linien, aufsaetze};
+  const seiten = entwurf.symmetrie ? ['rechts'] : ['rechts','links'];
+  for (const seite of seiten){
+    const wahl = a.slots[seite];
+    const f = formFuer(id);
+    for (const sl of BASEN.oberteil.slots){
+      const o = TEILE[sl.id].opt[wahl[sl.id]];
+      if (o && o.vor) o.vor(f);
+    }
+    if (ARMLOCH_NAHT[wahl.aermel]){
+      const vz = seite === 'links' ? -1 : 1;
+      const amHals = wahl.aermel === 'raglan';
+      linien.push(armlochBogen(f, vz, amHals));
+      if (entwurf.symmetrie) linien.push(armlochBogen(f, -1, amHals));
+    }
+    const aus = TEILE.ausschnitt.opt[wahl.ausschnitt];
+    if (aus){
+      // Hinten faellt die Ausschnittlinie mit der Halskante zusammen -
+      // dann bleibt sie weg, sonst liegen zwei Linien uebereinander.
+      if (aus.innen && f.halstiefe > halsbandTiefe(f) + 0.6){
+        for (const d of aus.innen(f)){
+          if (seite === 'links'){ if (d.indexOf('M -') === 0) linien.push(d); }
+          else if (entwurf.symmetrie || d.indexOf('M -') !== 0) linien.push(d);
+        }
+      }
+      if (aus.aufsatz && seite === 'rechts') aufsaetze.push(...aus.aufsatz(f));
+    }
+  }
+  return {linien, aufsaetze};
+}
 function zeichneAnsicht(id){
   const svg = document.getElementById(id === 'vorne' ? 'svgVorne' : 'svgHinten');
   const a = entwurf.ansichten[id];
@@ -976,6 +1036,11 @@ function zeichneAnsicht(id){
 
   for (const x of detailPfade(id, true)) svg.appendChild(el('path', {d:x.d, class:'detail'}));
   svg.appendChild(el('path', {d, class:'stoff'}));
+  if (!a.punkte){
+    const innen = innenPfade(id);
+    for (const nd of innen.linien) svg.appendChild(el('path', {d:nd, class:'detail'}));
+    for (const nd of innen.aufsaetze) svg.appendChild(el('path', {d:nd, class:'aufsatz'}));
+  }
   for (const x of detailPfade(id, false)) svg.appendChild(el('path', {d:x.d, class:'detail'}));
 
   // Zuschnitt auf den Inhalt, erst nachdem alles im Dokument steht
@@ -1306,6 +1371,10 @@ function werteUebernehmen(option){
       entwurf.form[k] = wert;
     }
   }
+  // Werte, die nur hinten gelten - sonst bekaeme die Rueckansicht den
+  // tiefen vorderen Ausschnitt mit.
+  for (const [k, wert] of Object.entries(option.setztHinten || {}))
+    entwurf.ansichten.hinten.form[k] = wert;
 }
 
 function werkzeugSlot(wZeile, a, slot){
