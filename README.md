@@ -10,7 +10,7 @@ eigentliche Schnitt entsteht danach in Seamly2D.
 
 Ein Kleidungsstück besteht aus einer **Basis** (Oberteil, Hose),
 austauschbaren **Bausteinen** je Steckplatz und **Details** obendrauf.
-Aus 2 Basen und ihren Bausteinen ergeben sich 1340 Kombinationen.
+Aus 2 Basen und ihren Bausteinen ergeben sich 2240 Kombinationen.
 
 - **Vorne und hinten sind gekoppelt.** Weite, Länge, Ärmel und Körperform
   gelten für beide Ansichten; Halsausschnitt und Details getrennt.

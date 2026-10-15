@@ -491,6 +491,34 @@ const FORM_STANDARD = {
   bundweite:12.5, beinlaenge:77.3, beinweite:13.3, schritt:27.9
 };
 
+/* Formwerte, die kein eigener Regler sind. Sie werden in 'vor' der
+   Bausteine gesetzt und bei jedem Zeichnen neu, nie gespeichert - so
+   kann kein Wert von einem Baustein am naechsten haengen bleiben.
+     schulterbogen  Woelbung der Schulternaht (0 = gerade)
+     armbogen       Woelbung der Aermelkappe
+     armlochBauch   wie stark die Armlochnaht nach innen baucht
+     buendchen      Hoehe des Aermelbuendchens
+     saumband       Hoehe des Saumbuendchens
+     saumInset      wie weit das Saumbuendchen gegenueber dem Rumpf
+                    einzieht
+     achselbogen    Woelbung der Achselnaht (lange Hoodie-Aermel)    */
+const FORM_STILL = {schulterbogen:0, armbogen:0, armlochBauch:0.36,
+                    buendchen:0, saumband:6.4, saumInset:2.5, achselbogen:0};
+
+// Schulternaht und Aermelkappe sind bei Shirts gerade, beim Hoodie
+// gewoelbt. Die Woelbung kommt aus der Passform, nicht aus dem Aermel -
+// so laesst sich jede Schulter mit jedem Aermel kombinieren.
+function schulterKante(f){
+  return f.schulterbogen
+    ? {art:'bogen', w:f.schulterbogen, bez:'Schulternaht'}
+    : {art:'gerade', bez:'Schulternaht'};
+}
+function kappenKante(f){
+  return f.armbogen
+    ? {art:'bogen', w:f.armbogen, bez:'Ärmelkappe'}
+    : {art:'gerade', bez:'Ärmelkappe'};
+}
+
 function armPunkte(f, ab){
   const a=f.armwinkel*Math.PI/180;
   const tx=Math.cos(a),ty=Math.sin(a),ox=-ty,oy=tx;
@@ -562,10 +590,33 @@ const TEILE = {
   }},
   aermel:{ bez:'Ärmel', opt:{
     kurz:{bez:'Kurzarm', bau:(f)=>{ const s=armPunkte(f,[f.schulter,f.schulterfall]); return [
-      {p:[f.halsweite,0], r:1.0, kante:{art:'gerade', bez:'Schulternaht'}},
-      {p:[f.schulter,f.schulterfall], r:1.0, kante:{art:'gerade', bez:'Ärmelkappe'}},
+      {p:[f.halsweite,0], r:1.0, kante:schulterKante(f)},
+      {p:[f.schulter,f.schulterfall], r:1.0, kante:kappenKante(f)},
       {p:s.aus, r:0.4, kante:{art:'gerade', bez:'Ärmelsaum'}},
       {p:s.ein, r:0.4, kante:{art:'gerade', bez:'Achselnaht'}}]; }},
+    // Hoodie-Aermel: lang, am Ende ein Buendchen. Die Buendchenkante
+    // laeuft auf allen drei Hoodie-Zeichnungen senkrecht nach unten,
+    // nicht in Aermelrichtung - darum (0, buendchen) statt entlang dir.
+    kapuzenarm:{bez:'Mit Bündchen',
+      vor:f=>{ if(!f.buendchen) f.buendchen = 10; f.armlochBauch = 0.03; },
+      bau:(f)=>{ const s=armPunkte(f,[f.schulter,f.schulterfall]);
+        const b=[s.aus[0], s.aus[1]+f.buendchen];
+        const a=f.armwinkel*Math.PI/180;
+        const ein=[b[0]-f.armweite*Math.sin(a), b[1]+f.armweite*Math.cos(a)];
+        return [
+          {p:[f.halsweite,0], r:1.0, kante:schulterKante(f)},
+          {p:[f.schulter,f.schulterfall], r:1.0, kante:kappenKante(f)},
+          {p:s.aus, r:0.6, kante:{art:'gerade', bez:'Bündchenkante'}},
+          {p:b,     r:0.6, kante:{art:'gerade', bez:'Ärmelbündchen'}},
+          {p:ein,   r:0.6, kante: f.achselbogen
+            ? {art:'bogen', w:f.achselbogen, bez:'Achselnaht'}
+            : {art:'gerade', bez:'Achselnaht'}}]; },
+      innen:(f)=>{ const s=armPunkte(f,[f.schulter,f.schulterfall]);
+        const a=f.armwinkel*Math.PI/180, h=f.buendchen*0.5;
+        const o=[s.aus[0], s.aus[1]+f.buendchen-h];
+        const i=[o[0]-f.armweite*Math.sin(a), o[1]+f.armweite*Math.cos(a)];
+        const d=`M ${o[0].toFixed(2)},${o[1].toFixed(2)} L ${i[0].toFixed(2)},${i[1].toFixed(2)}`;
+        return [d, gespiegelt(d)]; }},
     halb:{bez:'Halbarm', vor:f=>{f.armlaenge=26; f.armweite=16;},
       bau:(f)=>TEILE.aermel.opt.kurz.bau(f)},
     lang:{bez:'Langarm', vor:f=>{f.armlaenge=45; f.armweite=13; f.armwinkel=34;},
@@ -610,6 +661,34 @@ const TEILE = {
       vor:f=>{f.saumweite = f.weite + 0.2;},
       bau:(f)=>[{p:[f.weite,f.schulterfall+f.armloch], r:0.8,
         kante:{art:'gerade', bez:'Seitennaht'}}]},
+    // Die drei Hoodies stammen aus blatt_hoodies.png (PNG-Export aus
+    // Linearity, das ganze Bild ist die A4-Artboard). Besonderheiten:
+    // die Schulter ist gewoelbt und faellt weit, das Armloch reicht bis
+    // fast auf Saumhoehe, und das Saumbuendchen bildet die Unterkante.
+    // Bei Cropped verdeckt der Aermel die Saumecke - die Koerperbreite
+    // ist dort an der Armlochlinie abgelesen, die Saumweite im selben
+    // Verhaeltnis verjuengt wie bei Regular.
+    hoodie:{bez:'Hoodie',
+      setzt:{weite:23.2, laenge:71.3, schulter:30.0, schulterfall:17.8, armloch:51.4, armlaenge:48.7, armwinkel:76.6, armweite:9.2, halsweite:14.3, halstiefe:8.0},
+      setztHinten:{halstiefe:1.4},
+      vor:f=>{ f.schulterbogen=4.7; f.saumInset=0.9; f.saumband=5.9; f.buendchen=11.7; },
+      bau:(f)=>[{p:[f.weite,f.schulterfall+f.armloch], r:0.8,
+        kante:{art:'gerade', bez:'Seitennaht'}}]},
+    hoodieCrop:{bez:'Hoodie cropped',
+      setzt:{weite:20.4, laenge:50.2, schulter:26.3, schulterfall:9.9, armloch:39.6, armlaenge:53.1, armwinkel:76.3, armweite:10.4, halsweite:11.0, halstiefe:8.0},
+      setztHinten:{halstiefe:1.4},
+      vor:f=>{ f.schulterbogen=1.8; f.saumInset=0.4; f.saumband=7.0;
+               f.buendchen=8.4; f.achselbogen=3.9; },
+      bau:(f)=>[{p:[f.weite,f.schulterfall+f.armloch], r:0.8,
+        kante:{art:'gerade', bez:'Seitennaht'}}]},
+    hoodieOver:{bez:'Hoodie oversized',
+      // Der Saum ist hier leicht gebogen, aussen 72,0 und in der Mitte
+      // 69,9 - das Modell zieht ihn gerade durch die Mitte bei 71,0.
+      setzt:{weite:26.3, laenge:71.0, schulter:29.8, schulterfall:13.1, armloch:55.2, armlaenge:50.9, armwinkel:71.8, armweite:9.5, halsweite:11.7, halstiefe:8.0},
+      setztHinten:{halstiefe:1.4},
+      vor:f=>{ f.schulterbogen=1.9; f.armbogen=1.5; f.saumInset=1.9; f.saumband=4.7; f.buendchen=15.4; },
+      bau:(f)=>[{p:[f.weite,f.schulterfall+f.armloch], r:0.8,
+        kante:{art:'gerade', bez:'Seitennaht'}}]},
     tailliert:{bez:'Tailliert', vor:f=>{f.saumweite = f.weite-0.5;},
       bau:(f)=>[{p:[f.weite,f.schulterfall+f.armloch], r:1.1,
         kante:{art:'bogen', w:-3.0, bez:'Seitennaht'}}]},
@@ -623,8 +702,13 @@ const TEILE = {
   saum:{ bez:'Saum', opt:{
     gerade:{bez:'Gerade', bau:(f)=>[{p:[f.saumweite??f.weite,f.laenge], r:0.4,
       kante:{art:'gerade', bez:'Saum'}}]},
-    buendchen:{bez:'Bündchen', vor:f=>{f.saumweite=(f.saumweite??f.weite)-2.5;},
-      bau:(f)=>[{p:[f.saumweite,f.laenge], r:0.4, kante:{art:'gerade', bez:'Saum'}}]},
+    buendchen:{bez:'Bündchen',
+      // Wie weit das Buendchen gegenueber dem Rumpf einzieht, sagt die
+      // Passform (saumInset). Ohne Angabe die alten 2,5.
+      vor:f=>{ f.saumweite=(f.saumweite??f.weite)-(f.saumInset??2.5); },
+      bau:(f)=>[{p:[f.saumweite,f.laenge], r:0.4, kante:{art:'gerade', bez:'Saum'}}],
+      innen:(f)=>{ const y=f.laenge-f.saumband, b=f.saumweite+(f.weite-f.saumweite)*0.5;
+        return [`M ${(-b).toFixed(2)},${y.toFixed(2)} L ${b.toFixed(2)},${y.toFixed(2)}`]; }},
     rund:{bez:'Shirttail', vor:f=>{f.saumversatz=4.5;},
       bau:(f)=>[{p:[f.saumweite??f.weite,f.laenge], r:4.5,
         kante:{art:'bogen', w:2.2, bez:'Rundsaum'}}]},
@@ -700,9 +784,9 @@ const BASEN = {
       {k:'weite',        bez:'Weite',           min:18, max:42, s:0.5, geteilt:true},
       {k:'laenge',       bez:'Länge',           min:36, max:98, s:0.5, geteilt:true},
       {k:'schulter',     bez:'Schulterbreite',  min:16, max:34, s:0.5, geteilt:true},
-      {k:'schulterfall', bez:'Schulterneigung', min:0.5,max:14, s:0.1, geteilt:true},
-      {k:'armloch',      bez:'Armlochtiefe',    min:15, max:36, s:0.5, geteilt:true},
-      {k:'armlaenge',    bez:'Ärmellänge',      min:3,  max:62, s:0.5, geteilt:true},
+      {k:'schulterfall', bez:'Schulterneigung', min:0.5,max:24, s:0.1, geteilt:true},
+      {k:'armloch',      bez:'Armlochtiefe',    min:15, max:60, s:0.5, geteilt:true},
+      {k:'armlaenge',    bez:'Ärmellänge',      min:3,  max:80, s:0.5, geteilt:true},
       {k:'armweite',     bez:'Ärmelweite',      min:7,  max:34, s:0.5, geteilt:true},
       {k:'armwinkel',    bez:'Ärmelwinkel',     min:-5, max:60, s:1,   geteilt:true},
       {k:'halsweite',    bez:'Halsweite',       min:5,  max:20, s:0.5, geteilt:false},
@@ -822,7 +906,7 @@ entwurf.ansichten.hinten.form.laengeExtra = 0;
 
 function formFuer(ansichtId){
   const a = entwurf.ansichten[ansichtId];
-  const f = Object.assign({}, entwurf.form, a.form);
+  const f = Object.assign({}, FORM_STILL, entwurf.form, a.form);
   f.laenge = (f.laenge ?? 0) + (f.laengeExtra || 0);
   f.beinlaenge = (f.beinlaenge ?? 0) + (f.laengeExtra || 0);
   return f;
@@ -979,14 +1063,14 @@ function detailPfade(id, hinter){
 // Kurve zur Achsel - die Armlochnaht. Sie gehoert zum Bild des
 // Kleidungsstuecks und nicht zu den waehlbaren Details, darum wird sie
 // hier aus der Kette heraus gezeichnet statt angeheftet.
-const ARMLOCH_NAHT = {kurz:1, halb:1, lang:1, weit:1, raglan:1};
+const ARMLOCH_NAHT = {kurz:1, halb:1, lang:1, weit:1, raglan:1, kapuzenarm:1};
 function armlochBogen(f, vz, amHals){
   const A = amHals ? [vz*f.halsweite, 0] : [vz*f.schulter, f.schulterfall];
   const B = [vz*f.weite, f.schulterfall + f.armloch];
   const dx = B[0]-A[0], dy = B[1]-A[1], L = Math.hypot(dx,dy) || 1;
   let nx = dy/L, ny = -dx/L;              // Senkrechte, die zur Mitte zeigt
   if (nx*vz > 0){ nx = -nx; ny = -ny; }
-  const b = L*0.36;
+  const b = L*(f.armlochBauch ?? 0.36);
   const C = [(A[0]+B[0])/2 + nx*b, (A[1]+B[1])/2 + ny*b];
   return `M ${A[0].toFixed(2)},${A[1].toFixed(2)}`
        + ` Q ${C[0].toFixed(2)},${C[1].toFixed(2)}`
@@ -1013,17 +1097,22 @@ function innenPfade(id){
       linien.push(armlochBogen(f, vz, amHals));
       if (entwurf.symmetrie) linien.push(armlochBogen(f, -1, amHals));
     }
-    const aus = TEILE.ausschnitt.opt[wahl.ausschnitt];
-    if (aus){
+    for (const sl of BASEN.oberteil.slots){
+      const o = TEILE[sl.id].opt[wahl[sl.id]];
+      if (!o) continue;
       // Hinten faellt die Ausschnittlinie mit der Halskante zusammen -
       // dann bleibt sie weg, sonst liegen zwei Linien uebereinander.
-      if (aus.innen && f.halstiefe > halsbandTiefe(f) + 0.6){
-        for (const d of aus.innen(f)){
+      if (sl.id === 'ausschnitt' && f.halstiefe <= halsbandTiefe(f) + 0.6){
+        if (o.aufsatz && seite === 'rechts') aufsaetze.push(...o.aufsatz(f));
+        continue;
+      }
+      if (o.innen){
+        for (const d of o.innen(f)){
           if (seite === 'links'){ if (d.indexOf('M -') === 0) linien.push(d); }
           else if (entwurf.symmetrie || d.indexOf('M -') !== 0) linien.push(d);
         }
       }
-      if (aus.aufsatz && seite === 'rechts') aufsaetze.push(...aus.aufsatz(f));
+      if (o.aufsatz && seite === 'rechts') aufsaetze.push(...o.aufsatz(f));
     }
   }
   return {linien, aufsaetze};
