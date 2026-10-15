@@ -645,17 +645,20 @@ const TEILE = {
     // Werte einmal in den Entwurf - danach bleiben die Regler frei.
     // 'setztHinten' gilt nur fuer die Rueckansicht (flacherer Ausschnitt).
     regular:{bez:'Regular',
+      setztBausteine:{aermel:'kurz', saum:'gerade'},
       setzt:{weite:21.7, laenge:69.4, schulter:23.4, schulterfall:7.2, armloch:23.5, armlaenge:17.7, armwinkel:42.6, armweite:17.5, halsweite:9.7, halstiefe:8.9},
       setztHinten:{halstiefe:1.5},
       bau:(f)=>[{p:[f.weite,f.schulterfall+f.armloch], r:0.8,
         kante:{art:'gerade', bez:'Seitennaht'}}]},
     oversized:{bez:'Oversized',
+      setztBausteine:{aermel:'kurz', saum:'gerade'},
       setzt:{weite:24.5, laenge:60.3, schulter:26.3, schulterfall:8.9, armloch:23.1, armlaenge:18.6, armwinkel:40.7, armweite:17.6, halsweite:8.8, halstiefe:7.0},
       setztHinten:{halstiefe:1.5},
       vor:f=>{f.saumweite = f.weite + 1.4;},
       bau:(f)=>[{p:[f.weite,f.schulterfall+f.armloch], r:0.8,
         kante:{art:'gerade', bez:'Seitennaht'}}]},
     cropped:{bez:'Cropped',
+      setztBausteine:{aermel:'kurz', saum:'gerade'},
       setzt:{weite:22.4, laenge:42.9, schulter:22.0, schulterfall:4.9, armloch:23.0, armlaenge:16.5, armwinkel:37.9, armweite:17.1, halsweite:10.7, halstiefe:9.1},
       setztHinten:{halstiefe:1.5},
       vor:f=>{f.saumweite = f.weite + 0.2;},
@@ -669,12 +672,14 @@ const TEILE = {
     // ist dort an der Armlochlinie abgelesen, die Saumweite im selben
     // Verhaeltnis verjuengt wie bei Regular.
     hoodie:{bez:'Hoodie',
+      setztBausteine:{aermel:'kapuzenarm', saum:'buendchen'},
       setzt:{weite:23.2, laenge:71.3, schulter:30.0, schulterfall:17.8, armloch:51.4, armlaenge:48.7, armwinkel:76.6, armweite:9.2, halsweite:14.3, halstiefe:8.0},
       setztHinten:{halstiefe:1.4},
       vor:f=>{ f.schulterbogen=4.7; f.saumInset=0.9; f.saumband=5.9; f.buendchen=11.7; },
       bau:(f)=>[{p:[f.weite,f.schulterfall+f.armloch], r:0.8,
         kante:{art:'gerade', bez:'Seitennaht'}}]},
     hoodieCrop:{bez:'Hoodie cropped',
+      setztBausteine:{aermel:'kapuzenarm', saum:'buendchen'},
       setzt:{weite:20.4, laenge:50.2, schulter:26.3, schulterfall:9.9, armloch:39.6, armlaenge:53.1, armwinkel:76.3, armweite:10.4, halsweite:11.0, halstiefe:8.0},
       setztHinten:{halstiefe:1.4},
       vor:f=>{ f.schulterbogen=1.8; f.saumInset=0.4; f.saumband=7.0;
@@ -682,6 +687,7 @@ const TEILE = {
       bau:(f)=>[{p:[f.weite,f.schulterfall+f.armloch], r:0.8,
         kante:{art:'gerade', bez:'Seitennaht'}}]},
     hoodieOver:{bez:'Hoodie oversized',
+      setztBausteine:{aermel:'kapuzenarm', saum:'buendchen'},
       // Der Saum ist hier leicht gebogen, aussen 72,0 und in der Mitte
       // 69,9 - das Modell zieht ihn gerade durch die Mitte bei 71,0.
       setzt:{weite:26.3, laenge:71.0, schulter:29.8, schulterfall:13.1, armloch:55.2, armlaenge:50.9, armwinkel:71.8, armweite:9.5, halsweite:11.7, halstiefe:8.0},
@@ -1449,6 +1455,27 @@ function werkzeugBasis(wZeile){
 // Ein Baustein darf gemessene Werte mitbringen ('setzt'). Die werden beim
 // Anklicken einmal in den Entwurf geschrieben - danach bleiben die Regler
 // frei, statt bei jedem Zeichnen ueberschrieben zu werden.
+//
+// 'setztBausteine' zieht die Bausteine nach, die zum vermessenen Teil
+// gehoeren. Ein Hoodie ist auf dem Blatt ein ganzes Kleidungsstueck: zum
+// Rumpf gehoeren der lange Aermel mit Buendchen und das Saumbuendchen.
+// Ohne das kam nach einem Klick auf 'Hoodie' ein Poncho heraus, weil der
+// Kurzarm vom Shirt stehen blieb. Danach bleiben die Chips frei - wer
+// einen Hoodie mit Kurzarm will, klickt ihn einfach wieder an.
+function bausteineUebernehmen(option, seite){
+  if (!option || !option.setztBausteine) return;
+  for (const [slotId, wahl] of Object.entries(option.setztBausteine)){
+    const s = BASEN[entwurf.basis].slots.find(x => x.id === slotId);
+    if (!s) continue;
+    const ziele = s.geteilt ? ['vorne','hinten'] : [aktiveAnsicht];
+    for (const z of ziele){
+      const av = entwurf.ansichten[z];
+      av.slots[seite][slotId] = wahl;
+      if (entwurf.symmetrie) av.slots.links[slotId] = av.slots.rechts[slotId];
+    }
+  }
+}
+
 function werteUebernehmen(option){
   if (!option || !option.setzt) return;
   const regler = BASEN[entwurf.basis].regler;
@@ -1481,6 +1508,7 @@ function werkzeugSlot(wZeile, a, slot){
         if (entwurf.symmetrie) av.slots.links[slot.id] = av.slots.rechts[slot.id];
       }
       werteUebernehmen(def.opt[id]);
+      bausteineUebernehmen(def.opt[id], seite);
       panelBauen(); allesZeichnen();
     }));
 }
